@@ -47,17 +47,17 @@ export class Header extends Component {
                             <li className="nav-item dropdown">
                                 <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Services</a>
                                 <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <a className="dropdown-item" href="/balance-transfer-of-existing-loan">Balance Transfer of Existing Loan</a>
-                                    <a className="dropdown-item" href="/home-construction-loan">Home Construction Loan</a>
-                                    <a className="dropdown-item" href="/new-home-loan">New Home Loan</a>
-                                    <a className="dropdown-item" href="/home-improvement-loan">Home Improvement Loan</a>
-                                    <a className="dropdown-item" href="/loan-against-property">Loan Against Property</a>
-                                    <a className="dropdown-item" href="/plot-loan">Plot Loan</a>
+                                    <a className="dropdown-item" href="#">Link</a>
+                                    <a className="dropdown-item" href="#">Link</a>
+                                    <a className="dropdown-item" href="#">Link</a>
+                                    <a className="dropdown-item" href="#">Link</a>
+                                    <a className="dropdown-item" href="#">Link</a>
+                                    <a className="dropdown-item" href="#">Link</a>
                                 </div>
                             </li>
-                            <li className="nav-item"><a className="nav-link" href="/blog">Blog</a></li>
-                            {!this.state.user.role? <li className="nav-item"><a className="nav-link" href="/register">Be a Partner</a></li> : null }
-                            <li className="nav-item"><a className="nav-link" href="/contact-us">Contact Us</a></li>
+                            <li className="nav-item"><a className="nav-link" href="#">Blog</a></li>
+                            {/* {!this.state.user.role? <li className="nav-item"><a className="nav-link" href="/register">Be a Partner</a></li> : null } */}
+                            <li className="nav-item"><a className="nav-link" href="#">Contact Us</a></li>
                             <li className="nav-item dropdown">
                                 <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     {this.state.user.role? <span>{this.toSentenceCase(this.state.user.name)}</span> : <img src="/images/icons/user.svg" className="userLogo"/> }

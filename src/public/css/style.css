@@ -1270,4 +1270,29 @@ button.swiper-pagination-bullet {
 form h3 {
   margin-bottom: 0;
 }
+
+.links ul, .social ul {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  margin: 0;
+}
+
+.links ul {
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
+}
+
+.social img {
+  max-width: 30px;
+}
+
+.links ul li, .social ul li, .links li a {
+  padding: 10px;
+  color: #fff;
+}
 /*# sourceMappingURL=style.css.map */

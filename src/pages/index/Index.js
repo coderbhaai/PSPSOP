@@ -8,7 +8,7 @@ export class Index extends Component {
         const params = {
             fadeEffect: { crossFade: true },
             autoplay: {
-                delay: 2500,
+                delay: 7500,
                 disableOnInteraction: true,
             },
             slidersPerView: 1,
@@ -28,40 +28,40 @@ export class Index extends Component {
                             <img src="images/static/banner-1.jpg" alt=""/>
                             <div className="tint"></div>
                             <div className="banner-text">
-                                <h2>Home Loans for Salaried Professionals</h2>
-                                <p>Get a home loan as per your needs and budget, at the best rates.</p>
+                                <h2>Product Information</h2>
+                                <p>Short Snippet on product infromation oges here</p>
                             </div>
                         </div>
                         <div >
                             <img src="images/static/banner-2.jpg" alt=""/>
                             <div className="tint"></div>
                             <div className="banner-text">
-                                <h2>A Transfer that is rewarding and is in your interest</h2>
-                                <p>Switch your Existing Home Loan to get Bigger Savings, Lower Rate, Multiple options to switch and win assured Cash back of up to INR 15000/-</p>
+                                <h2>Product Information</h2>
+                                <p>Short Snippet on product infromation oges here</p>
                             </div>
                         </div>
                         <div >
                             <img src="images/static/banner-3.jpg" alt=""/>
                             <div className="tint"></div>
                             <div className="banner-text">
-                                <h2>Reduce your EMI</h2>
-                                <p>even if your existing loan is @ Floating Rate</p>
+                                <h2>Product Information</h2>
+                                <p>Short Snippet on product infromation oges here</p>
                             </div>
                         </div>
                         <div >
                             <img src="images/static/banner-4.jpg" alt=""/>
                             <div className="tint"></div>
                             <div className="banner-text">
-                                <h2>Leverage your EXISTING Home Loan</h2>
-                                <p>Go on vacation, buy a new car or meet any large expense Without increasing your EMI</p>
+                                <h2>Product Information</h2>
+                                <p>Short Snippet on product infromation oges here</p>
                             </div>
                         </div>
                         <div >
                             <img src="images/static/banner-4.jpg" alt=""/>
                             <div className="tint"></div>
                             <div className="banner-text">
-                                <h2>Be a SAVE-IOUR and get paid for it</h2>
-                                <p>Refer The True Loans to your peers, help them save money and get paid for it</p>
+                                <h2>Product Information</h2>
+                                <p>Short Snippet on product infromation oges here</p>
                             </div>
                         </div>
                     </Swiper>
