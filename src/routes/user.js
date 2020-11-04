@@ -17,7 +17,7 @@ const nodemailer = require("nodemailer")
 
 router.get('/userCosting/:id', [verifyToken, verifyUser], asyncMiddleware( async(req, res, next) => {
     console.log('req.params.id', req.params.id)
-    let sql = `SELECT section, subsection, sop, updated_at FROM sop WHERE userId = ${req.params.id}`
+    let sql = `SELECT section, subsection, sopdetails, updated_at FROM sop WHERE userId = ${req.params.id}`
         pool.query(sql, (err, results) => {
             try{
                 if(err) throw err;
@@ -34,26 +34,12 @@ router.post('/addCosting', asyncMiddleware( async(req, res, next) => {
     const values = [
         [ req.body.userId, 'costing', 'procedure', req.body.procedure, time, time ],
         [ req.body.userId, 'costing', 'methodology', req.body.methodology, time, time ],
-        [ req.body.userId, 'costing', 'assignemnt', req.body.assignemnt, time, time ],
+        [ req.body.userId, 'costing', 'assignment', req.body.assignment, time, time ],
         [ req.body.userId, 'costing', 'period', req.body.period, time, time ],
         [ req.body.userId, 'costing', 'reports', req.body.reports, time, time ]
-      ];
-
-
-    // let post= {
-    //     "userId":                     req.body.userId,
-    //     "procedure":                  req.body.procedure,
-    //     "methodology":                req.body.methodology,
-    //     "assignemnt":                 req.body.assignemnt,
-    //     "period":                     req.body.period,
-    //     "reports":                    req.body.reports,
-    //     "created_at":                 time,
-    //     "updated_at":                 time,
-    // }
-    // let sql = 'INSERT INTO sop SET ?'
-    // pool.query(sql, post, (err, results) => {
-        const sql = "INSERT INTO sop(userId, section, subsection, sop, created_at, updated_at ) VALUES ?";
-        pool.query(sql, [values], (err, result)=> {
+    ];
+    let sql = "INSERT INTO sop(userId, section, subsection, sopdetails, created_at, updated_at ) VALUES ?";
+    pool.query(sql, [values], (err, result)=> {
         try{
             if(err){ res.send({ success: false, message: err.sqlMessage }) }
             res.send({ success: true, message: 'Costing Added Successfuly' });
@@ -64,6 +50,34 @@ router.post('/addCosting', asyncMiddleware( async(req, res, next) => {
         }
     })
 }))
+
+router.post('/updateCosting', asyncMiddleware( async(req, res, next) => {
+    const values = [
+        [ 'procedure', req.body.procedure ],
+        [ 'methodology', req.body.methodology ],
+        [ 'assignment', req.body.assignment ],
+        [ 'period', req.body.period ],
+        [ 'reports', req.body.reports ]
+    ];
+    values.forEach(function (i, index){
+        let sql = `UPDATE sop SET sopdetails = '${i[1]}', updated_at= '${time}' WHERE userId = ${req.body.userId} AND section = 'costing' AND subsection = '${i[0]}'`
+        pool.query(sql, [values], (err, result)=> {
+            try{
+                if(result){
+                    if(err){ res.send({ success: false, message: err.sqlMessage }) }
+                    if(index == values.length-1){ res.send({ success: true, message: 'Costing Updated Successfuly' }) }
+                }
+            }catch(e){
+                logError(e, req.url)
+                res.status(403);
+                return;
+            }
+        })
+    })
+    
+}))
+
+
 
 
 

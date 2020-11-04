@@ -12,14 +12,14 @@ export class UserCosting extends Component {
         this.state = {
             procedure:                  '',
             methodology:                '',
-            assignemnt:                 '',
+            assignment:                 '',
             period:                     '',
             reports:                    '',
             loading:                    true,
             edit:                       false,
             user:                       [],
             exists:                     false,
-            action:                     'addCosting',
+            action:                     'addCosting'
              
         }
         this.handleChange1 = this.handleChange1.bind( this )
@@ -36,12 +36,12 @@ export class UserCosting extends Component {
 
     onEditorChange1( evt1 ) { this.setState( { procedure: evt1.editor.getData() } ) }
     onEditorChange2( evt2 ) { this.setState( { methodology: evt2.editor.getData() } ) }
-    onEditorChange3( evt3 ) { this.setState( { assignemnt: evt3.editor.getData() } ) }
+    onEditorChange3( evt3 ) { this.setState( { assignment: evt3.editor.getData() } ) }
     onEditorChange4( evt4 ) { this.setState( { period: evt4.editor.getData() } ) }
     onEditorChange5( evt5 ) { this.setState( { reports: evt5.editor.getData() } ) }
     handleChange1( changeEvent1 ) { this.setState( { procedure: changeEvent1.target.value } ) }
     handleChange2( changeEvent2 ) { this.setState( { methodology: changeEvent2.target.value } ) }
-    handleChange3( changeEvent3 ) { this.setState( { assignemnt: changeEvent3.target.value } ) }
+    handleChange3( changeEvent3 ) { this.setState( { assignment: changeEvent3.target.value } ) }
     handleChange4( changeEvent4 ) { this.setState( { period: changeEvent4.target.value } ) }
     handleChange5( changeEvent5 ) { this.setState( { reports: changeEvent5.target.value } ) }
     editOption=()=>{ this.setState({ edit: true }) }
@@ -56,34 +56,27 @@ export class UserCosting extends Component {
     callApi = async (id) => {
         const response = await fetch( '/user/userCosting/'+id ); 
         const body = await response.json();
-        console.log('body.data', body.data.length)
         body.data.map((i)=>(
-            i.subsection == 'procedure' ? this.setState({procedure: i.sop}) :
-            i.subsection == 'methodology' ? this.setState({methodology: i.sop}) :
-            i.subsection == 'assignemnt' ? this.setState({assignemnt: i.sop}) :
-            i.subsection == 'period' ? this.setState({period: i.sop}) :
-            i.subsection == 'reports' ? this.setState({reports: i.sop})
+            i.subsection == 'procedure' ? this.setState({procedure: i.sopdetails}) :
+            i.subsection == 'methodology' ? this.setState({methodology: i.sopdetails}) :
+            i.subsection == 'assignment' ? this.setState({assignment: i.sopdetails}) :
+            i.subsection == 'period' ? this.setState({period: i.sopdetails}) :
+            i.subsection == 'reports' ? this.setState({reports: i.sopdetails})
             :null
         ))
         if (response.status !== 200) throw Error(body.message)
-        if(body.data.length){
-            this.setState({
-                exists:             true,
-            })
-        }else{
-            this.setState({ 
-                exists:             false,
-            })
-        }
+        if(body.data.length){ this.setState({ exists: true }) }else{ this.setState({ exists: false }) }
+        this.setState({ loading: false })
     }
 
     submitHandler= (e)=>{
         e.preventDefault()
+        this.setState({ loading: true })
         const data={
             userId:                     this.state.user.id,
             procedure:                  this.state.procedure,
             methodology:                this.state.methodology,
-            assignemnt:                 this.state.assignemnt,
+            assignment:                 this.state.assignment,
             period:                     this.state.period,
             reports:                    this.state.reports
         }
@@ -110,15 +103,15 @@ export class UserCosting extends Component {
             exists:                     true,
             procedure:                  this.state.procedure,
             methodology:                this.state.methodology,
-            assignemnt:                 this.state.assignemnt,
+            assignment:                 this.state.assignment,
             period:                     this.state.period,
-            reports:                    this.state.reports
+            reports:                    this.state.reports,
+            loading:                    false
         })
         this.callSwal(message)
     }
 
     render() {
-        console.log('this.state', this.state)
         return (
             <>
                 <Header/>
@@ -130,59 +123,64 @@ export class UserCosting extends Component {
                         </div>
                         <UserSidebar active="Costing"/>
                         <div className="col-sm-9">
-                            { this.state.edit?
+                            {this.state.loading? <div className="text-center"><img src="/images/icons/loading.gif" alt="" className="logo"/></div> :
                                 <>
-                                { this.state.exists?
-                                    <form encType="multipart/form-data" onSubmit={this.submitHandler}>
-                                        <h3>Establish Cost Accounting Procedures</h3>
-                                        <CKEditor onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) } data ={this.state.procedure} content= {this.state.procedure} onChange={this.onEditorChange1} config={ { allowedContent : true, extraAllowedContent: "span; *(*)", forcePasteAsPlainText: true}}/>
-                                        <h3>Develop Costing Methodology</h3>
-                                        <CKEditor onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) } data ={this.state.methodology} content= {this.state.methodology} onChange={this.onEditorChange2} config={ { allowedContent : true, extraAllowedContent: "span; *(*)", forcePasteAsPlainText: true}}/>
-                                        <h3>Perform Cost Assignment</h3>
-                                        <CKEditor onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) } data ={this.state.assignemnt} content= {this.state.assignemnt} onChange={this.onEditorChange3} config={ { allowedContent : true, extraAllowedContent: "span; *(*)", forcePasteAsPlainText: true}}/>
-                                        <h3>Perform Period End Close</h3>
-                                        <CKEditor onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) } data ={this.state.period} content= {this.state.period} onChange={this.onEditorChange4} config={ { allowedContent : true, extraAllowedContent: "span; *(*)", forcePasteAsPlainText: true}}/>
-                                        <h3>Develop Cost Reports</h3>
-                                        <CKEditor onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) } data ={this.state.reports} content= {this.state.reports} onChange={this.onEditorChange5} config={ { allowedContent : true, extraAllowedContent: "span; *(*)", forcePasteAsPlainText: true}}/>
-                                        <div className="my-div">
-                                            <button className="amitBtn">Update Costing SOP</button>
-                                            <button className="amitBtnInverse mt-5" onClick={this.closeEditOption}>Close</button>
-                                        </div>
-                                    </form>
-                                :
-                                    <form encType="multipart/form-data" onSubmit={this.submitHandler}>
-                                        <h3>Establish Cost Accounting Procedures</h3>
-                                        <CKEditor onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) } content= {this.state.procedure} onChange={this.onEditorChange1} config={ { allowedContent : true, extraAllowedContent: "span; *(*)", forcePasteAsPlainText: true}}/>
-                                        <h3>Develop Costing Methodology</h3>
-                                        <CKEditor onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) } content= {this.state.methodology} onChange={this.onEditorChange2} config={ { allowedContent : true, extraAllowedContent: "span; *(*)", forcePasteAsPlainText: true}}/>
-                                        <h3>Perform Cost Assignment</h3>
-                                        <CKEditor onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) } content= {this.state.assignemnt} onChange={this.onEditorChange3} config={ { allowedContent : true, extraAllowedContent: "span; *(*)", forcePasteAsPlainText: true}}/>
-                                        <h3>Perform Period End Close</h3>
-                                        <CKEditor onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) } content= {this.state.period} onChange={this.onEditorChange4} config={ { allowedContent : true, extraAllowedContent: "span; *(*)", forcePasteAsPlainText: true}}/>
-                                        <h3>Develop Cost Reports</h3>
-                                        <CKEditor onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) } content= {this.state.reports} onChange={this.onEditorChange5} config={ { allowedContent : true, extraAllowedContent: "span; *(*)", forcePasteAsPlainText: true}}/>
-                                        <div className="my-div">
-                                            <button className="amitBtn">Add Costing SOP</button>
-                                            <button className="amitBtnInverse mt-5" onClick={this.closeEditOption}>Close</button>
-                                        </div>
-                                    </form>
-                                }
-                                </>
-                                : 
-                                <>
-                                    <h3>Establish Cost Accounting Procedures</h3>
-                                    {this.state.procedure ?<section className="not-found-controller" dangerouslySetInnerHTML={{ __html: this.state.procedure }} /> : <p>You are yet to add data</p> }
-                                    <h3>Develop Costing Methodology</h3>
-                                    {this.state.methodology ?<section className="not-found-controller" dangerouslySetInnerHTML={{ __html: this.state.methodology }} /> : <p>You are yet to add data</p> }
-                                    <h3>Perform Cost Assignment</h3>
-                                    {this.state.assignemnt ?<section className="not-found-controller" dangerouslySetInnerHTML={{ __html: this.state.assignemnt }} /> : <p>You are yet to add data</p> }
-                                    <h3>Perform Period End Close</h3>
-                                    {this.state.period ?<section className="not-found-controller" dangerouslySetInnerHTML={{ __html: this.state.period }} /> : <p>You are yet to add data</p> }
-                                    <h3>Develop Cost Reports</h3>
-                                    {this.state.reports ?<section className="not-found-controller" dangerouslySetInnerHTML={{ __html: this.state.reports }} /> : <p>You are yet to add data</p> }
-                                    <div className="my-div"><button className="amitBtn" onClick={this.editOption}>Edit</button></div>
+                                    { this.state.edit? 
+                                        <>
+                                        { this.state.exists?
+                                            <form encType="multipart/form-data" onSubmit={this.submitHandler}>
+                                                <h3>Establish Cost Accounting Procedures</h3>
+                                                <CKEditor onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) } data ={this.state.procedure} content= {this.state.procedure} onChange={this.onEditorChange1} config={ { allowedContent : true, extraAllowedContent: "span; *(*)", forcePasteAsPlainText: true}}/>
+                                                <h3>Develop Costing Methodology</h3>
+                                                <CKEditor onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) } data ={this.state.methodology} content= {this.state.methodology} onChange={this.onEditorChange2} config={ { allowedContent : true, extraAllowedContent: "span; *(*)", forcePasteAsPlainText: true}}/>
+                                                <h3>Perform Cost Assignment</h3>
+                                                <CKEditor onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) } data ={this.state.assignment} content= {this.state.assignment} onChange={this.onEditorChange3} config={ { allowedContent : true, extraAllowedContent: "span; *(*)", forcePasteAsPlainText: true}}/>
+                                                <h3>Perform Period End Close</h3>
+                                                <CKEditor onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) } data ={this.state.period} content= {this.state.period} onChange={this.onEditorChange4} config={ { allowedContent : true, extraAllowedContent: "span; *(*)", forcePasteAsPlainText: true}}/>
+                                                <h3>Develop Cost Reports</h3>
+                                                <CKEditor onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) } data ={this.state.reports} content= {this.state.reports} onChange={this.onEditorChange5} config={ { allowedContent : true, extraAllowedContent: "span; *(*)", forcePasteAsPlainText: true}}/>
+                                                <div className="my-div">
+                                                    <button className="amitBtn">Update Costing SOP</button>
+                                                    <button className="amitBtnInverse mt-5" onClick={this.closeEditOption}>Close</button>
+                                                </div>
+                                            </form>
+                                        :
+                                            <form encType="multipart/form-data" onSubmit={this.submitHandler}>
+                                                <h3>Establish Cost Accounting Procedures</h3>
+                                                <CKEditor onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) } content= {this.state.procedure} onChange={this.onEditorChange1} config={ { allowedContent : true, extraAllowedContent: "span; *(*)", forcePasteAsPlainText: true}}/>
+                                                <h3>Develop Costing Methodology</h3>
+                                                <CKEditor onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) } content= {this.state.methodology} onChange={this.onEditorChange2} config={ { allowedContent : true, extraAllowedContent: "span; *(*)", forcePasteAsPlainText: true}}/>
+                                                <h3>Perform Cost Assignment</h3>
+                                                <CKEditor onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) } content= {this.state.assignment} onChange={this.onEditorChange3} config={ { allowedContent : true, extraAllowedContent: "span; *(*)", forcePasteAsPlainText: true}}/>
+                                                <h3>Perform Period End Close</h3>
+                                                <CKEditor onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) } content= {this.state.period} onChange={this.onEditorChange4} config={ { allowedContent : true, extraAllowedContent: "span; *(*)", forcePasteAsPlainText: true}}/>
+                                                <h3>Develop Cost Reports</h3>
+                                                <CKEditor onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) } content= {this.state.reports} onChange={this.onEditorChange5} config={ { allowedContent : true, extraAllowedContent: "span; *(*)", forcePasteAsPlainText: true}}/>
+                                                <div className="my-div">
+                                                    <button className="amitBtn">Add Costing SOP</button>
+                                                    <button className="amitBtnInverse mt-5" onClick={this.closeEditOption}>Close</button>
+                                                </div>
+                                            </form>
+                                        }
+                                        </>
+                                        : 
+                                        <>
+                                            <h3>Establish Cost Accounting Procedures</h3>
+                                            {this.state.procedure ?<section className="not-found-controller" dangerouslySetInnerHTML={{ __html: this.state.procedure }} /> : <p>You are yet to add data</p> }
+                                            <h3>Develop Costing Methodology</h3>
+                                            {this.state.methodology ?<section className="not-found-controller" dangerouslySetInnerHTML={{ __html: this.state.methodology }} /> : <p>You are yet to add data</p> }
+                                            <h3>Perform Cost Assignment</h3>
+                                            {this.state.assignment ?<section className="not-found-controller" dangerouslySetInnerHTML={{ __html: this.state.assignment }} /> : <p>You are yet to add data</p> }
+                                            <h3>Perform Period End Close</h3>
+                                            {this.state.period ?<section className="not-found-controller" dangerouslySetInnerHTML={{ __html: this.state.period }} /> : <p>You are yet to add data</p> }
+                                            <h3>Develop Cost Reports</h3>
+                                            {this.state.reports ?<section className="not-found-controller" dangerouslySetInnerHTML={{ __html: this.state.reports }} /> : <p>You are yet to add data</p> }
+                                            <div className="my-div"><button className="amitBtn" onClick={this.editOption}>Edit</button></div>
+                                        </>
+                                    }
                                 </>
                             }
+
                         </div>
                     </div>
                 </div>
