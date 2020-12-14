@@ -1,24 +1,19 @@
 {
-  "presets": [
-    [
-      "@babel/preset-env",
-      {
-        "targets": {
-          "node": "current"
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "8.10"
+          }
         }
-      }
+      ]
     ],
-    [
-      "@babel/preset-react"
+  
+  
+    "plugins": [
+      "@babel/plugin-proposal-class-properties"
     ]
-  ],
-  "plugins": [
-    "@babel/plugin-proposal-class-properties",
-    ["@babel/plugin-transform-runtime", {
-      "regenerator": true
-    }]
-  ],
-  "ignore":[
-    "./src/static/public/"
-  ]
-}
+  
+  
+  }
