@@ -24,6 +24,7 @@ export class Header extends Component {
         localStorage.clear();
         this.setState({ user: [] })
         this.callSwal('You are logged out')
+        window.location.href = '/'
     }
 
     onChange= (e) => { this.setState({ [e.target.name]: e.target.value }) }
@@ -46,6 +47,7 @@ export class Header extends Component {
                                 {this.state.user.role?
                                     <>
                                         {this.state.user.role==="Admin"? <a className="dropdown-item" href="/admin-users">Admin Panel</a> : null }
+                                        {this.state.user.role==="Org"? <a className="dropdown-item" href="/org-users">Admin Panel</a> : null }
                                         <a className="dropdown-item" onClick={this.logout}>Log Out</a>
                                     </>
                                     :

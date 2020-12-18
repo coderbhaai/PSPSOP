@@ -15,12 +15,17 @@ class CreateBasicsTable extends Migration
     {
         Schema::create('basics', function (Blueprint $table) {
             $table->id();
-            $table->string('userId');
-            $table->string('type');
-            $table->string('tab1');
-            $table->string('tab2')->nullable();
-            $table->string('tab3')->nullable();
-            $table->string('tab4')->nullable();
+            $table->integer('orgId');
+            $table->integer('step');
+            $table->integer('head');
+            $table->mediumText('name');
+            $table->integer('status');
+            // $table->string('userId');
+            // $table->string('type');
+            // $table->string('tab1');
+            // $table->string('tab2')->nullable();
+            // $table->string('tab3')->nullable();
+            // $table->string('tab4')->nullable();
             $table->timestamps();
         });
     }

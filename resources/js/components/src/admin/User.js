@@ -18,6 +18,8 @@ export class User extends Component {
     componentDidMount(){
         window.scrollTo(0, 0)
         this.setState({ active: window.location.pathname })
+        const token = JSON.parse(localStorage.getItem('access_token'))
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
         axios.get('/api/adminUsers').then(res =>{ 
             console.log('res.data.data', res.data.data)
             this.setState({ users: res.data.data }) })
@@ -29,13 +31,13 @@ export class User extends Component {
     callSwal=(mesg)=>{ swal({ title: mesg, timer: 4000 }) }
     searchSpace=(e)=>{ this.setState({search:e.target.value}) }
 
-    changeStatus=(id, value)=>{
+    changeOrgStatus=(id, value)=>{
         if(value == 1){ var status = 0 }else{ var status = 1}
         const data={
             id:                         id,
             status:                     status
         }               
-        axios.post('/api/changeStatus', data)
+        axios.post('/api/changeOrgStatus', data)
         .then( res=>{
             if(res.data.success){
                 this.setState({ users: this.state.users.map(x => x.id === parseInt(res.data.data.id) ? x= res.data.data :x ) })
@@ -49,19 +51,24 @@ export class User extends Component {
         const {currentPage, itemsPerPage } = this.state
         const indexOfLastItem = currentPage * itemsPerPage
         const indexOfFirstItem = indexOfLastItem - itemsPerPage
-        const renderItems =  this.state.users.filter((i)=>{ if(this.state.search == null) return i; else if(i.name.toLowerCase().includes(this.state.search.toLowerCase()) || i.role.toLowerCase().includes(this.state.search.toLowerCase()) ){ return i }}).slice(indexOfFirstItem, indexOfLastItem).map((i, index) => {
+        const renderItems =  this.state.users.filter((i)=>{ if(this.state.search == null) return i; else if(i.org.toLowerCase().includes(this.state.search.toLowerCase()) || i.name.toLowerCase().includes(this.state.search.toLowerCase()) || i.role.toLowerCase().includes(this.state.search.toLowerCase()) ){ return i }}).slice(indexOfFirstItem, indexOfLastItem).map((i, index) => {
             return (
                 <tr key={index}>
                     <td>{index +1}</td>
-                    <td>{i.name}<br/>{i.email}</td>                        
+                    <td>{i.org}</td>
+                    <td>{i.name}<br/>{i.email}</td>
                     <td>{i.role}</td>
                     <td>{moment(i.updated_at).format("DD MMMM  YYYY")}</td>
                     <td>{i.status==1? 'Approved' : 'Not Approved'}</td>
                     <td>
+                        {i.role === 'Org' ?
                         <div className="onoffswitch">
-                            <input type="checkbox" name="category" className="onoffswitch-checkbox" id={i.email} onChange={(e)=>this.changeStatus(i.id, e.target.value)} value={i.status} checked={i.status==1? true : false}/>
+                            <input type="checkbox" name="category" className="onoffswitch-checkbox" id={i.email} onChange={(e)=>this.changeOrgStatus(i.id, e.target.value)} value={i.status} checked={i.status==1? true : false}/>
                             <label className="onoffswitch-label" htmlFor={i.email}><span className="onoffswitch-inner"></span><span className="onoffswitch-switch"></span></label>
                         </div>
+                        : i.role === 'User'?
+                            i.status==1? 'Approved' : 'Not Approved'
+                        : null}
                     </td>
                 </tr>
             )})
@@ -92,6 +99,7 @@ export class User extends Component {
                                 <thead>
                                 <tr>
                                     <td>Sl No.</td>
+                                    <td>Organisation</td>
                                     <td>Name | Email</td>
                                     <td>Role</td>                                              
                                     <td>Date</td>

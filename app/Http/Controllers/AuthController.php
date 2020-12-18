@@ -22,18 +22,25 @@ class AuthController extends Controller
     
     }
 
-    public function register(Request $request){ 
+    public function register(Request $request){
         $payload = [
-            'password'=>\Hash::make($request->password),
-            'email'=>$request->email,
+            'org'=>$request->org,
             'name'=>$request->name,
+            'email'=>$request->email,
+            'password'=>\Hash::make($request->password),
             'role'=>$request->role,
             'status'=>$request->status,
         ];
+        $existing = User::where('org', '=', $request->org)->first();
+        if (!is_null($existing)) {
+            $response = ['success'=>false, 'message'=>'Organisation already registered'];
+            return response()->json($response, 201);
+        }
+
         $existing = User::where('email', '=', $request->email)->first();
         if (!is_null($existing)) {
             $response = ['success'=>false, 'message'=>'Email already registered'];   
-            return response()->json($response, 201);          
+            return response()->json($response, 201);
         }
 
         if($request->password_confirmation === $request->password){
@@ -46,14 +53,14 @@ class AuthController extends Controller
         if ($user->save())
         {
             $user = \App\Models\User::where('email', $request->email)->first();
-            $tokenResult = $user->createToken('authToken')->plainTextToken;
+            // $tokenResult = $user->createToken('authToken')->plainTextToken;
             $user->save();
             $response = [
                 'success'       =>  true,
                 'message'       =>  'Registration succesful',
-                'access_token'  =>  $tokenResult,
-                'token_type'    =>  'Bearer',
-                'data'          =>  $user
+                // 'access_token'  =>  $tokenResult,
+                // 'token_type'    =>  'Bearer',
+                // 'data'          =>  $user
             ];
             return response()->json($response, 201);
         }
@@ -65,6 +72,12 @@ class AuthController extends Controller
                     'email'             => 'email|required',
                     'password'          => 'required'
                 ]);
+                if(!(User::where('email', $request->email)->where('status', 1)->exists())){
+                    return response()->json([
+                        'success'       =>  false,
+                        'message'       =>  "You have not been approved yet."
+                    ]);
+                }
                 if(!(User::where('email', $request->email)->exists())){
                     return response()->json([
                         'success'       =>  false, 
@@ -83,7 +96,9 @@ class AuthController extends Controller
                 if ( ! Hash::check($request->password, $user->password, [])) {
                     throw new \Exception('Error in Login');
                 }
-                $tokenResult = $user->createToken('authToken')->plainTextToken;
+                // $tokenResult = $user->createToken('authToken')->plainTextToken;
+                if($user->role === 'Admin'){ $tokenResult = $user->createToken('authToken', ['Admin'])->plainTextToken; }
+                if($user->role === 'Org'){ $tokenResult = $user->createToken('authToken', ['Org'])->plainTextToken; }
                 return response()->json([
                     'success'           => true,
                     'status_code'       => 200,

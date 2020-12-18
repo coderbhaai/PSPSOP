@@ -15,7 +15,7 @@ class CreateSopsTable extends Migration
     {
         Schema::create('sops', function (Blueprint $table) {
             $table->id();
-            $table->integer('userId');
+            $table->integer('orgId');
             $table->integer('sopfor');
             $table->text('sop');
             $table->timestamps();

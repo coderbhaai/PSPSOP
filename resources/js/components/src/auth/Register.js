@@ -6,6 +6,7 @@ class Register extends Component {
     constructor(props) {
         super(props)    
         this.state = {
+            org:                        '',
             name:                       '',
             email:                      '',
             role:                       'User',
@@ -28,21 +29,20 @@ class Register extends Component {
             this.callSwal('Passwords Do Not Match')
         }else{
             const data={
+                org:                        this.state.org, 
                 name:                       this.state.name, 
                 email:                      this.state.email,
-                role:                       this.state.role,
+                role:                       'Org',
                 status:                     this.state.status,
                 password:                   this.state.password,
-                password_confirmation:      this.state.password_confirmation
+                password_confirmation:      this.state.password_confirmation,
             }               
             axios.post('/api/register', data)
             .then( res=>{
                 console.log('res.data', res.data)
                 if(res.data.success){
-                    localStorage.setItem('user', JSON.stringify(res.data.data))
-                    localStorage.setItem('access_token', JSON.stringify(res.data.access_token))
                     localStorage.setItem( 'message', res.data.message )
-                    window.location.href = '/'
+                    window.location.href = '/awaiting-approval'
                 }else{
                     this.callSwal(res.data.message)
                 }
@@ -64,6 +64,8 @@ class Register extends Component {
                             <div className="col-sm-3"></div>
                             <div className="col-sm-6">
                                 <form onSubmit={this.submitHandler}>
+                                    <label>Organisation Name</label>
+                                    <input type="text" className="form-control" name="org" required placeholder="Name of Organisation Please" onChange={this.onChange}/>
                                     <label>Name</label>
                                     <input type="text" className="form-control" name="name" required placeholder="Name Please" onChange={this.onChange}/>
                                     <label>E-Mail</label>

@@ -25,7 +25,9 @@ export class Sop extends Component {
 
     callApi(){
         if(typeof(Storage) !== "undefined"){ var userId = JSON.parse(localStorage.getItem('user')).id || '' }
-        axios.get('/api/adminSop/'+userId).then(res =>{
+        const token = JSON.parse(localStorage.getItem('access_token'))
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
+        axios.get('/api/sopList').then(res =>{
             console.log('res.data.data', res.data.data)
             this.setState({ data: res.data.data, loading: false })
         })
@@ -42,23 +44,19 @@ export class Sop extends Component {
         const {currentPage, itemsPerPage } = this.state
         const indexOfLastItem = currentPage * itemsPerPage
         const indexOfFirstItem = indexOfLastItem - itemsPerPage
-        const renderItems =  this.state.data.filter((i)=>{ if(this.state.search == null) return i; else if(i.dept.toLowerCase().includes(this.state.search.toLowerCase()) || i.process.toLowerCase().includes(this.state.search.toLowerCase()) || i.subprocess.toLowerCase().includes(this.state.search.toLowerCase()) || i.subsubprocess.toLowerCase().includes(this.state.search.toLowerCase()) ){ return i }}).slice(indexOfFirstItem, indexOfLastItem).map((i, index) => {
+        const renderItems =  this.state.data.filter((i)=>{ if(this.state.search == null) return i; else 
+            if( i.sopForName.toLowerCase().includes(this.state.search.toLowerCase()) ){ return i }}).slice(indexOfFirstItem, indexOfLastItem).map((i, index) => {
             return (
                 <tr key={index}>
                     <td>{index +1}</td>
-                    <td>{i.dept}</td>
-                    <td>{i.process}</td>
-                    <td>{i.subprocess ? i.subprocess : "---" }</td>
-                    <td>{i.subsubprocess ? i.subsubprocess : "---" }</td>
-                    <td className="editIcon text-center"><a href={"/admin-updateSop/"+i.id}><img src="/images/icons/edit.svg"/></a></td>
+                    <td>{i.order.map((j,index2)=>( <span key={index2}>{index2!== i.order.length-1 ? j+' => ' : j }</span>))}</td>
+                    <td className="editIcon text-center"><a href={"/updateSop/"+i.sopfor}><img src="/images/icons/edit.svg"/></a></td>
                 </tr>
             )})
         const pageNumbers = []
         for (let i = 1; i <= Math.ceil(this.state.data.length / itemsPerPage); i++) { pageNumbers.push(i) }
         const renderPagination = pageNumbers.map(number => { if(currentPage == number){ return ( <li key={number} id={number} onClick={this.handleClick} className="active"> {number}</li> ) }else{ return ( <li key={number} id={number} onClick={this.handleClick} > {number}</li> ) } })
-
         return (
-            <>
             <div className="container-fluid admin mb-5">
                 <h1 className="heading">Admin Panel (SOP)</h1>
                 <div className="row">
@@ -66,7 +64,7 @@ export class Sop extends Component {
                     <div className="col-sm-10">
                     {this.state.loading? <div className="loading"><img src="/images/icons/loading.gif"/></div> :<>
                         <div className="btn-pag">  
-                            <a href="/admin-createSop" className="amitBtn">Create Sop</a>
+                            <a href="/createSop" className="amitBtn">Create Sop</a>
                             <div>
                                 <input type="text" placeholder="Search here" className="form-control" onChange={(e)=>this.searchSpace(e)} style={{width:'400px'}}/>
                                 <select className="form-control" required value={itemsPerPage} onChange={(e)=>this.changeitemsPerPage(e)}>
@@ -83,10 +81,7 @@ export class Sop extends Component {
                             <thead>
                             <tr>
                                 <td>Sl No.</td>
-                                <td>Department</td>                                              
-                                <td>Process</td>
-                                <td>Subprocess</td>
-                                <td>Sub SubProcess</td>
+                                <td>So For</td>
                                 <td>Action</td>
                             </tr>
                             </thead>
@@ -97,7 +92,6 @@ export class Sop extends Component {
                     </div>
                 </div>
             </div>
-        </>
         )
     }
 }
