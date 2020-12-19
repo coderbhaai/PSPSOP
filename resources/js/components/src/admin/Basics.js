@@ -11,14 +11,17 @@ export class Basics extends Component {
         super(props)
         this.state = {
             data:                           [],
-            addmodalIsOpen:                 false,
-            editmodalIsOpen:                false,
-            orgId:                          '',
+            addDepartment:                  false,
+            addProcess:                     false,
+            changeNameModel:                false,
             step:                           '',
             head:                           '',
             name:                           '',
             id:                             '',
-            loading:                        true
+            loading:                        true,
+            currentPage:                    1,
+            itemsPerPage:                   100,
+            search:                         '',
         }
     }
     
@@ -31,13 +34,11 @@ export class Basics extends Component {
     }
 
     callApi(){
-        axios.get('/api/adminBasic').then(res =>{
-            console.log('res.data', res.data)
+        const token = JSON.parse(localStorage.getItem('access_token'))
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
+        axios.get('/api/userBasic').then(res =>{
             this.setState({ 
-                // dept:                           res.data.dept,
-                // process:                        res.data.process,
-                // subprocess:                     res.data.subprocess,
-                // superprocess:                   res.data.superprocess,
+                data:                           res.data.data,
                 loading: false 
             }) 
         })
@@ -45,13 +46,49 @@ export class Basics extends Component {
 
     onChange= (e) => { this.setState({ [e.target.name]: e.target.value }) }
     callSwal=(mesg)=>{ swal({ title: mesg, timer: 4000 }) }
-    addModalOn = ()=>{ this.setState({ addmodalIsOpen: true }) }
+    handleClick= (e)=> { this.setState({ currentPage: Number(e.target.id) }) }
+    changeitemsPerPage = (e)=>{ this.setState({ itemsPerPage: e.target.value }) }
+    searchSpace=(e)=>{ this.setState({search:e.target.value}) }
+
+    changeBasicStatus=(id, value)=>{
+        if(value == 1){ var status = 0 }else{ var status = 1}
+        const data={
+            id:                         id,
+            status:                     status
+        }
+        console.log('data', data)         
+        axios.post('/api/changeBasicStatus', data)
+        .then( res=>{
+            console.log('res.data', res.data)
+            if(res.data.success){
+                this.setState({ data: this.state.data.map(x => x.id === parseInt(res.data.data.id) ? x= res.data.data :x ) })
+            }
+            this.callSwal(res.data.message)
+        })
+        .catch(err=>console.log('err', err))
+    }
+
+    addDepartment = ()=>{ 
+        this.setState({ 
+            addDepartment:          true,
+            step:                   0,
+            head:                   0
+        })
+    }
+
+    addProcess = (i)=>{ 
+        this.setState({ 
+            editmodalIsOpen:            true,
+            step:                       i.step+1,
+            head:                       i.id
+        })
+    }
 
     resetData = ()=>{
         this.setState({
-            addmodalIsOpen:                 false,
+            addDepartment:                  false,
             editmodalIsOpen:                false,
-            orgId:                          '',
+            changeNameModel:                false,
             step:                           '',
             head:                           '',
             name:                           '',
@@ -59,13 +96,13 @@ export class Basics extends Component {
         })
     }
 
-    addModal = (e) => {
+    createBasic = (e) => {
         e.preventDefault()
         const data={
-            orgId:                          this.state.orgId,
             step:                           this.state.step,
             head:                           this.state.head,
-            name:                           this.state.name
+            name:                           this.state.name,
+            status:                         1,
         }
         axios.post('/api/createBasic', data)
         .then( res=> {
@@ -76,50 +113,57 @@ export class Basics extends Component {
             this.callSwal(res.data.message)
         })
     }
-    
-    editModalOn = (i)=>{
-        if(i.type=='superprocess'){
-            this.setState({
-                editmodalIsOpen:                true,
-                id:                             parseInt( i.id ),
-                orgId:                          i.orgId,
-                step:                           i.step,
-                head:                           i.head,
-                name:                           i.name,
-            })
-        }
+
+    changeName=(i)=>{
+        this.setState({ 
+            changeNameModel:            true,
+            id:                         i.id,
+            name:                       i.name
+        })
     }
 
-    updateModal = (e) => {
+    updateBasic = (e) => {
         e.preventDefault()
         const data={
             id:                             this.state.id,
-            orgId:                          this.state.orgId,
-            step:                           this.state.step,
-            head:                           this.state.head,
             name:                           this.state.name
         }
         axios.post('/api/updateBasic', data)
         .then( res=> {
             if(res.data.success){
-                this.setState({ dept: this.state.dept.map(x => x.id === res.data.data.id ? x= res.data.data : x ) })
+                this.setState({ data: this.state.data.map(x => x.id === res.data.data.id ? x= res.data.data : x ) })
                 this.resetData()
             }
             this.callSwal(res.data.message)
         })
     }
 
-    changeType=(e)=>{
-        this.setState({
-            type:                           e.target.value,
-            tab1:                           '',
-            tab2:                           '',
-            tab3:                           '',
-            tab4:                           '',
-        })
-    }
-
     render() {
+        // console.log('this.state', this.state)
+        const {currentPage, itemsPerPage } = this.state
+        const indexOfLastItem = currentPage * itemsPerPage
+        const indexOfFirstItem = indexOfLastItem - itemsPerPage
+        const renderItems =  this.state.data.filter((i)=>{ if(this.state.search == null) return i; else if(i.name.toLowerCase().includes(this.state.search.toLowerCase()) ){ return i }}).slice(indexOfFirstItem, indexOfLastItem).map((i, index) => {
+            return (
+                <tr key={index}>
+                    <td>{index+1}</td>
+                    <td>
+                        {i.order.map((j,index2)=>( <span key={index2}>{index2!== i.order.length-1 ? j+' => ' : j }</span>))}
+                    </td>
+                    <td>{moment(i.updated_at).format("DD MMMM  YYYY")}</td>
+                    <td>
+                        <div className="onoffswitch">
+                            <input type="checkbox" name="category" className="onoffswitch-checkbox" id={index} onChange={(e)=>this.changeBasicStatus(i.id, e.target.value)} value={i.status} checked={i.status==1? true : false}/>
+                            <label className="onoffswitch-label" htmlFor={index}><span className="onoffswitch-inner"></span><span className="onoffswitch-switch"></span></label>
+                        </div>
+                    </td>
+                    <td className="editIcon text-center"><img src="/images/icons/edit.svg" onClick={()=>this.addProcess(i)}/></td>
+                    <td className="editIcon text-center"><img src="/images/icons/edit.svg" onClick={()=>this.changeName(i)}/></td>
+                </tr>
+            )})
+        const pageNumbers = []
+        for (let i = 1; i <= Math.ceil(this.state.data.length / itemsPerPage); i++) { pageNumbers.push(i) }
+        const renderPagination = pageNumbers.map(number => { if(currentPage == number){ return ( <li key={number} id={number} onClick={this.handleClick} className="active"> {number}</li> ) }else{ return ( <li key={number} id={number} onClick={this.handleClick} > {number}</li> ) } })
         return (
             <>
             <div className="container-fluid admin mb-5">
@@ -128,193 +172,66 @@ export class Basics extends Component {
                     <AdminSidebar/>
                     <div className="col-sm-10">
                     {this.state.loading? <div className="loading"><img src="/images/icons/loading.gif"/></div> :<>
-                        <div className="btn-pag">  
-                            <button className="amitBtn" onClick={this.addModalOn}>Add Department</button>
+                        <div className="btn-pag">
+                            <button className="amitBtn" onClick={this.addDepartment}>Add Department</button>
+                            <div>
+                            <input type="text" placeholder="Search here" className="form-control" onChange={(e)=>this.searchSpace(e)} style={{width:'400px'}}/>
+                                <select className="form-control" required value={itemsPerPage} onChange={(e)=>this.changeitemsPerPage(e)}>
+                                    <option>{itemsPerPage}</option>
+                                    <option value="10">10</option> 
+                                    <option value="25">25</option> 
+                                    <option value="50">50</option> 
+                                    <option value="100">100</option> 
+                                </select>
+                                <div><ul className="page-numbers">{renderPagination}</ul></div>
+                            </div>
+                        </div>
+                        <div>
+                            {this.state.addDepartment?
+                                <form encType="multipart/form-data" onSubmit={this.createBasic}>
+                                    <div className="row">
+                                        <div className="col-sm-12">
+                                            <label>Department Name</label>
+                                            <input name="name" type="text" className="form-control" placeholder="Add Department Name" value={this.state.name} required onChange={this.onChange}/>
+                                        </div>
+                                        <div className="my-div"><button className="amitBtn" type="submit">Submit</button></div>
+                                        <div className="btn-pag">  
+                                            <button className="amitBtn" onClick={this.resetData}>Close Department</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            : null}
                         </div>
                         <table className="table table-hover table-responsive">
-                            <thead><tr><td>Sl No.</td><td>Type</td><td>Department Name</td><td>Date</td><td>Action</td></tr></thead>
-                            <tbody>
-                                {this.state.data.map((i,index)=>(
-                                    <tr key={index}>
-                                        <td>{index+1}</td>
-                                        <td>Order Number</td>
-                                        {/* <td>{i.department}</td> */}
-                                        <td>{moment(i.updated_at).format("DD MMMM  YYYY")}</td>
-                                        <td className="editIcon text-center"><img src="/images/icons/edit.svg" onClick={()=>this.editModalOn(i)}/></td>
-                                    </tr>
-                                ))}
-                            </tbody>
+                            <thead><tr><td>Sl No.</td><td>Hierarchy</td><td>Date</td><td>Status</td><td>Add a step</td><td>Change name</td></tr></thead>
+                            <tbody>{renderItems}</tbody>
                         </table>
                     </>}
                     </div>
                 </div>
             </div>
-            <Modal isOpen={this.state.addmodalIsOpen} className="adminModal">
-                <div className="modal-header"><h2>Add Basics Here</h2><div className="closeModal" onClick={this.resetData}>X</div></div>
-                <form encType="multipart/form-data" onSubmit={this.addModal}>
+
+            <Modal isOpen={this.state.editmodalIsOpen} className="adminModal"> 
+                <div className="modal-header"><h2>Add a step Below</h2><div className="closeModal" onClick={this.resetData}>X</div></div>
+                <form encType="multipart/form-data" onSubmit={this.createBasic}>
                     <div className="row">
-                        <div className=
-                            {
-                                this.state.type=='dept' || this.state.type=='process' || this.state.type=='subprocess'? "col-sm-4" : 
-                                this.state.type=='superprocess' ? "col-sm-3" :
-                                "col-sm-12"
-                            }>
-                            <label>Type of Basic</label>
-                            <select className="form-control" required name="type" onChange={this.changeType} value={this.state.type}>
-                                <option value=''>Select Type</option>
-                                <option value="dept">Department</option>
-                                <option value="process">Process</option>
-                                <option value="subprocess">Sub Process</option>
-                                <option value="superprocess">Super Process</option>
-                            </select>
+                        <div className="col-sm-12">
+                            <label>Add another step</label>
+                            <input name="name" type="text" className="form-control" placeholder="Add Department Name" value={this.state.name} required onChange={this.onChange}/>
                         </div>
-                        {this.state.type?
-                            <>
-                                {this.state.type == 'dept'?
-                                    <div className="col-sm-4">
-                                        <label>Department Name</label>
-                                        <input name="tab1" type="text" className="form-control" placeholder="Department Name" value={this.state.tab1} required onChange={this.onChange}/>
-                                    </div>
-                                : this.state.type == 'process'?
-                                <>
-                                    <div className="col-sm-4">
-                                        <label>Department Name</label>
-                                        <select className="form-control" required name="tab1" onChange={this.changeDept} value={this.state.tab1}>
-                                            <option value=''>Select Department</option>
-                                            {this.state.dept.map((i,index)=>( <option key={index} value={i.deptId}>{i.department}</option> ))}
-                                        </select>
-                                    </div>
-                                    <div className="col-sm-4">
-                                        <label>Process Name</label>
-                                        <input name="tab2" type="text" className="form-control" placeholder="Process Name" value={this.state.tab2} required onChange={this.onChange}/>
-                                    </div>
-                                </>
-                                : this.state.type == 'subprocess'?
-                                <>
-                                    <div className="col-sm-4">
-                                        <label>Department Name</label>
-                                        <select className="form-control" required name="tab1" onChange={this.changeDept} value={this.state.tab1}>
-                                            <option value=''>Select Department</option>
-                                            {this.state.dept.map((i,index)=>( <option key={index} value={i.deptId}>{i.department}</option> ))}
-                                        </select>
-                                    </div>
-                                    <div className="col-sm-4">
-                                        <label>Process Name</label>
-                                        <select className="form-control" required name="tab2" onChange={this.changeProcess} value={this.state.tab2}>
-                                            <option value=''>Select Process</option>
-                                            {this.state.process.filter((i)=>{ if(i.deptId === this.state.tab1){ return i }}).map((i,index)=>( <option key={index} value={i.processId}>{i.process}</option> ))}
-                                        </select>
-                                    </div>
-                                    <div className="col-sm-12">
-                                        <label>Sub Process Name</label>
-                                        <input name="tab3" type="text" className="form-control" placeholder="Sub Process Name" value={this.state.tab3} required onChange={this.onChange}/>
-                                    </div>
-                                </>
-                                : this.state.type == 'superprocess'?
-                                <>
-                                    <div className="col-sm-3">
-                                        <label>Department Name</label>
-                                        <select className="form-control" required name="tab1" onChange={this.changeDept} value={this.state.tab1}>
-                                            <option value=''>Select Department</option>
-                                            {this.state.dept.map((i,index)=>( <option key={index} value={i.deptId}>{i.department}</option> ))}
-                                        </select>
-                                    </div>
-                                    <div className="col-sm-3">
-                                        <label>Process Name</label>
-                                        <select className="form-control" required name="tab2" onChange={this.changeProcess} value={this.state.tab2}>
-                                            <option value=''>Select Process</option>
-                                            {this.state.process.filter((i)=>{ if(i.deptId === this.state.tab1){ return i }}).map((i,index)=>( <option key={index} value={i.processId}>{i.process}</option> ))}
-                                        </select>
-                                    </div>
-                                    <div className="col-sm-3">
-                                        <label>Sub Process Name</label>
-                                        <select className="form-control" required name="tab3" onChange={this.changeSubProcess} value={this.state.tab3}>
-                                            <option value=''>Select Sub Process</option>
-                                            {this.state.subprocess.map((i,index)=>( <option key={index} value={i.subprocessId}>{i.subprocess}</option> ))}
-                                            {this.state.superprocess.map((i,index)=>( <option key={index} value={i.superprocessId}>{i.superprocess}</option> ))}
-                                        </select>
-                                    </div>
-                                    <div className="col-sm-12">
-                                        <label>Super Process Name</label>
-                                        <input name="tab4" type="text" className="form-control" placeholder="Super Process Name" value={this.state.tab4} required onChange={this.onChange}/>
-                                    </div>
-                                </>
-                                : null }
-                            </>
-                        : null}
                         <div className="my-div"><button className="amitBtn" type="submit">Submit</button></div>
                     </div>
                 </form>
             </Modal>
 
-            <Modal isOpen={this.state.editmodalIsOpen} className="adminModal"> 
-                <div className="modal-header"><h2>Update Basics Here</h2><div className="closeModal" onClick={this.resetData}>X</div></div>
-                <form encType="multipart/form-data" onSubmit={this.updateModal}>
+            <Modal isOpen={this.state.changeNameModel} className="adminModal"> 
+                <div className="modal-header"><h2>Add a step Below</h2><div className="closeModal" onClick={this.resetData}>X</div></div>
+                <form encType="multipart/form-data" onSubmit={this.updateBasic}>
                     <div className="row">
-                        <div className=
-                            {
-                                this.state.type=='dept' || this.state.type=='process' || this.state.type=='subprocess'? "col-sm-4" : 
-                                this.state.type=='superprocess' ? "col-sm-3" :
-                                "col-sm-12"
-                            }>
-                            <label>Type of Basic</label>
-                            <input className="form-control" value={this.state.typeName} readOnly/>
+                        <div className="col-sm-12">
+                            <label>Process name</label>
+                            <input name="name" type="text" className="form-control" placeholder="Add Department Name" value={this.state.name} required onChange={this.onChange}/>
                         </div>
-                        {this.state.type?
-                            <>
-                                {this.state.type == 'dept'?
-                                    <div className="col-sm-4">
-                                        <label>Department Name</label>
-                                        <input name="tab1" type="text" className="form-control" placeholder="Department Name" value={this.state.tab1} required onChange={this.onChange}/>
-                                    </div>
-                                : this.state.type == 'process'?
-                                <>
-                                    <div className="col-sm-4">
-                                        <label>Department Name</label>
-                                        {this.state.dept.filter((i)=>{ if(i.deptId === this.state.tab1 ){ return i }}).map((i,index)=>( <input key={index} className="form-control" value={i.department} readOnly/> ))}
-                                    </div>
-                                    <div className="col-sm-4">
-                                        <label>Process Name</label>
-                                        <input name="tab2" type="text" className="form-control" placeholder="Process Name" value={this.state.tab2} required onChange={this.onChange}/>
-                                    </div>
-                                </>
-                                : this.state.type == 'subprocess'?
-                                <>
-                                    <div className="col-sm-4">
-                                        <label>Department Name</label>
-                                        {this.state.dept.filter((i)=>{ if(i.deptId === this.state.tab1 ){ return i }}).map((i,index)=>( <input key={index} className="form-control" value={i.department} readOnly/> ))}
-                                    </div>
-                                    <div className="col-sm-4">
-                                        <label>Process Name</label>
-                                        {this.state.process.filter((i)=>{ if(i.processId === this.state.tab2 ){ return i }}).map((i,index)=>( <input key={index} className="form-control" value={i.process} readOnly/> ))}
-                                    </div>
-                                    <div className="col-sm-12">
-                                        <label>Sub Process Name</label>
-                                        <input name="tab3" type="text" className="form-control" placeholder="Sub Process Name" value={this.state.tab3} required onChange={this.onChange}/>
-                                    </div>
-                                </>
-                                : this.state.type == 'superprocess'?
-                                <>
-                                    <div className="col-sm-3">
-                                        <label>Department Name</label>
-                                        {this.state.dept.filter((i)=>{ if(i.deptId === this.state.tab1 ){ return i }}).map((i,index)=>( <input key={index} className="form-control" value={i.department} readOnly/> ))}
-                                    </div>
-                                    <div className="col-sm-3">
-                                        <label>Process Name</label>
-                                        {this.state.process.filter((i)=>{ if(i.processId === this.state.tab2 ){ return i }}).map((i,index)=>( <input key={index} className="form-control" value={i.process} readOnly/> ))}
-                                    </div>
-                                    <div className="col-sm-3">
-                                        <label>Sub Process Name</label>
-                                        {this.state.subprocess.filter((i)=>{ if(i.subprocessId === this.state.tab3 ){ return i }}).map((i,index)=>( <input key={index} className="form-control" value={i.subprocess} readOnly/> ))}
-                                    </div>
-                                    <div className="col-sm-12">
-                                        <label>Super Process Name</label>
-                                        <input name="tab4" type="text" className="form-control" placeholder="Super Process Name" value={this.state.tab4} required onChange={this.onChange}/>
-                                    </div>
-                                </>
-                                : null }
-                            </>
-                        : null}
                         <div className="my-div"><button className="amitBtn" type="submit">Submit</button></div>
                     </div>
                 </form>

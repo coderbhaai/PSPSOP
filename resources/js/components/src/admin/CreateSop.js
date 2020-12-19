@@ -25,13 +25,6 @@ export class CreateSop extends Component {
     componentDidMount(){
         window.scrollTo(0, 0)   
         this.callApi()
-        // if(typeof(Storage) !== "undefined" && JSON.parse(localStorage.getItem('user'))){ this.setState({ userId: JSON.parse(localStorage.getItem('user')).id || '' }) }
-        // if(window.location.pathname.split('/')[2]){ 
-        //     this.setState({ 
-        //         sopName:             window.location.pathname.split('/')[2].replace(/%20/g, ' '),
-        //         dept:               window.location.pathname.split('/')[2].replace(/%20/g, ' ')
-        //     })
-        // }
     }
 
     callApi(){
@@ -42,11 +35,7 @@ export class CreateSop extends Component {
             this.setState({ 
                 basicOptions:                   res.data.data,
                 loading:                        false
-            }) 
-            // res.data.data.forEach(i => {
-            //     this.setState({ basicOptions: [...this.state.basicOptions, {i.name, i.value} ] })
-            // });
-
+            })
         })
     }
 
@@ -79,7 +68,7 @@ export class CreateSop extends Component {
             console.log('res.data', res.data)
             if(res.data.success){
                 localStorage.setItem( 'message', res.data.message )
-                // window.location.href = '/admin-sop'
+                window.location.href = '/sopList'
             }
             this.callSwal(res.data.message)
         })

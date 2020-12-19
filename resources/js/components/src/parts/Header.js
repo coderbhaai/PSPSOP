@@ -21,10 +21,19 @@ export class Header extends Component {
 
     logout = e =>{
         e.preventDefault()
-        localStorage.clear();
-        this.setState({ user: [] })
-        this.callSwal('You are logged out')
-        window.location.href = '/'
+        this.callApi()        
+    }
+    
+    callApi(){
+        const id = parseInt(this.state.user.id)
+        const token = JSON.parse(localStorage.getItem('access_token'))
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
+        axios.post('/api/logout/'+id).then( res=> {
+            localStorage.setItem('message', res.data.message)
+            localStorage.clear();
+            this.setState({ user: [] })
+            window.location.href = '/login'
+        })
     }
 
     onChange= (e) => { this.setState({ [e.target.name]: e.target.value }) }

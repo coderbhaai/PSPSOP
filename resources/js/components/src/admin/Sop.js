@@ -16,7 +16,7 @@ export class Sop extends Component {
             userId:                         '',
             // loading:                        true
         }
-    }
+    } 
     
     componentDidMount(){
         window.scrollTo(0, 0)
@@ -49,7 +49,7 @@ export class Sop extends Component {
             return (
                 <tr key={index}>
                     <td>{index +1}</td>
-                    <td>{i.order.map((j,index2)=>( <span key={index2}>{index2!== i.order.length-1 ? j+' => ' : j }</span>))}</td>
+                    <td>{i.order.map((j,index2)=>( <span key={index2}>{index2!== i.order.length-1 ? j+' => ' : <strong>{j}</strong> }</span>))}</td>
                     <td className="editIcon text-center"><a href={"/updateSop/"+i.sopfor}><img src="/images/icons/edit.svg"/></a></td>
                 </tr>
             )})
@@ -81,8 +81,8 @@ export class Sop extends Component {
                             <thead>
                             <tr>
                                 <td>Sl No.</td>
-                                <td>So For</td>
-                                <td>Action</td>
+                                <td>SOP For</td>
+                                <td>Update SOP</td>
                             </tr>
                             </thead>
                             <tbody>{renderItems}</tbody>

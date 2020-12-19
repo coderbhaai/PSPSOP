@@ -7,36 +7,40 @@ use App\Http\Controllers\AdminController;
 
 Route::post('/login', 'App\Http\Controllers\AuthController@login');
 Route::post('/register', 'App\Http\Controllers\AuthController@register');
+Route::post('/forgotPassword', 'App\Http\Controllers\AuthController@forgotPassword');
+Route::post('/resetPassword', 'App\Http\Controllers\AuthController@resetPassword');
+Route::post('/appForgotPassword', 'App\Http\Controllers\AuthController@appForgotPassword');
 
 Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/logout/{id}', [AuthController::class, 'logout']);
     // Only for Admin
-        Route::get('/adminUsers', 'App\Http\Controllers\AdminController@adminUsers');
-        Route::post('/changeOrgStatus', 'App\Http\Controllers\AdminController@changeOrgStatus');
+        Route::get('/adminUsers', [AdminController::class, 'adminUsers']);
+        Route::post('/changeOrgStatus', [AdminController::class, 'changeOrgStatus']);
     // Only for Admin
 
     // Only for Org
-        Route::get('/userUsers', 'App\Http\Controllers\AdminController@userUsers');
-        Route::get('/userBasic', 'App\Http\Controllers\AdminController@userBasic');
+        Route::get('/userUsers', [AdminController::class, 'userUsers']);
+        Route::get('/userBasic', [AdminController::class, 'userBasic']);
     // Only for Org
         
     // Common for both
-        Route::post('/createBasic', 'App\Http\Controllers\AdminController@createBasic');
-        Route::post('/updateBasic', 'App\Http\Controllers\AdminController@updateBasic');
-        Route::post('/changeBasicStatus', 'App\Http\Controllers\AdminController@changeBasicStatus');
+        Route::post('/createBasic', [AdminController::class, 'createBasic']);
+        Route::post('/updateBasic', [AdminController::class, 'updateBasic']);
+        Route::post('/changeBasicStatus', [AdminController::class, 'changeBasicStatus']);
         
-        Route::get('/sopBasic', 'App\Http\Controllers\AdminController@sopBasic');
-        Route::get('/fetchOrder/{id}', 'App\Http\Controllers\AdminController@fetchOrder');
-        Route::post('/createSop', 'App\Http\Controllers\AdminController@createSop');
-        Route::get('/sopList', 'App\Http\Controllers\AdminController@sopList');
-        Route::get('/getSop/{id}', 'App\Http\Controllers\AdminController@getSop');
-        Route::post('/updateSop', 'App\Http\Controllers\AdminController@updateSop');
+        Route::get('/sopBasic', [AdminController::class, 'sopBasic']);
+        Route::get('/fetchOrder/{id}', [AdminController::class, 'fetchOrder']);
+        Route::post('/createSop', [AdminController::class, 'createSop']);
+        Route::get('/sopList', [AdminController::class, 'sopList']);
+        Route::get('/getSop/{id}', [AdminController::class, 'getSop']);
+        Route::post('/updateSop', [AdminController::class, 'updateSop']);
+    // Common for both
+
+    // For App
         
-        // Common for both
+    // For App
     });
     // Route::post('/changeUserStatus', 'App\Http\Controllers\AdminController@changeUserStatus');
-
-    
-    
     
 Route::get('/adminSop/{id}', 'App\Http\Controllers\AdminController@adminSop');
 Route::get('/deptList', 'App\Http\Controllers\AdminController@deptList');

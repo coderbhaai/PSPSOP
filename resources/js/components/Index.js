@@ -14,10 +14,9 @@ import ForgotPassword from './src/auth/ForgotPassword'
 import ResetPassword from './src/auth/ResetPassword'
 
 import AdminUser from './src/admin/User'
-import AdminBasics from './src/admin/Basics'
+import Basics from './src/admin/Basics'
 
 import OrgUser from './src/org/User'
-import OrgBasics from './src/org/Basics'
 
 import CreateSop from './src/admin/CreateSop'
 import UpdateSop from './src/admin/UpdateSop'
@@ -41,11 +40,10 @@ function Index() {
                 <Route exact path="/resetPassword/:id" component={ResetPassword}/>
                 
                 <Route exact path="/admin-users" component={RequireAdmin( AdminUser ) }/>
-                <Route exact path="/admin-basics" component={RequireAdmin( AdminBasics ) }/>
 
                 <Route exact path="/org-users" component={RequireOrg( OrgUser ) }/>
-                <Route exact path="/org-basics" component={RequireOrg( OrgBasics ) }/>
 
+                <Route exact path="/basics" component={RequireAdminOrOrg( Basics ) }/>
                 <Route exact path="/sopList" component={RequireAdminOrOrg( SopList ) }/>
                 <Route exact path="/createSop" component={RequireAdminOrOrg( CreateSop ) }/>
                 <Route exact path="/updateSop/:id" component={RequireAdminOrOrg( UpdateSop ) }/>

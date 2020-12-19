@@ -17,22 +17,20 @@ export class AdminSidebar extends Component {
         }
         this.setState({ active: window.location.pathname })
         if(window.location.pathname === '/createSop'){ this.setState({ active: '/sopList' }) }
-        if(window.location.pathname.split("/")[1] === 'updateSop'){ this.setState({ active: '/sopList' }) }
-        
+        if(window.location.pathname.split("/")[1] === 'updateSop'){ this.setState({ active: '/sopList' }) }   
     }
-
    
     render() {
         const admin =[
-            {text: 'Basics', url: '/admin-basics', active: '/admin-basics'},
             {text: 'Users', url: '/admin-users', active: '/admin-users'},
-            {text: 'All SOPs', url: '/sopList', active: '/admin-sop'},
+            {text: 'Basics', url: '/basics', active: '/basics'},
+            {text: 'SOPs', url: '/sopList', active: '/admin-sop'},
         ]
 
         const org =[
-            {text: 'Basics', url: '/org-basics', active: '/org-basics'},
             {text: 'Users', url: '/org-users', active: '/org-users'},
-            {text: 'All SOPs', url: '/sopList', active: '/org-sop'},
+            {text: 'Basics', url: '/basics', active: '/basics'},
+            {text: 'SOPs', url: '/sopList', active: '/org-sop'},
         ]
         return (
             <div className="col-sm-2 sidebar">                                

@@ -139,14 +139,15 @@ class AdminController extends Controller
             $dB->status           =   $request->status;
             $dB-> save();
             $data       =   $this->getBasic($request->id);
-            $response = ['success'=>true, 'data' => $data[0], 'message'=>'Status Updated Succesfully'];
+            $response = ['success'=>true, 'data' => $data, 'message'=>'Status Updated Succesfully'];
             return response()->json($response, 201);
         }else{ $response = [ 'success'=>false,  'message'=>'You are not Authorised']; }
     }
 
     public function sopBasic(){
         if($this->checkAdminOrOrg()){
-            $data = DB::select( DB::raw("select id as value, name as text from basics where id not in(select sopfor from sops)") );
+            $userId = Auth::user()->id;
+            $data = DB::select( DB::raw("SELECT id as value, name as text from basics where orgId='$userId' AND id not in(select sopfor from sops)") );
             return response()->json([
                 'success'=>true,
                 'data' => $data
@@ -172,7 +173,6 @@ class AdminController extends Controller
                 $dB->orgId              =   Auth::user()->id;
                 $dB->sopfor             =   $request->sopfor;
                 $dB->sop                =   $request->sop;
-                // $dB->sop                =  'sop for '.$request->sopfor .' - '. time();
                 $dB-> save();
                 $response = ['success'=>true, 'message' => "SOP created succesfully"];
             }else{
@@ -196,7 +196,7 @@ class AdminController extends Controller
     public function sopList(){
         if($this->checkAdminOrOrg()){
             $data       = Sop::where('orgId', Auth::user()->id)->select('id', 'sopfor','sop', 'updated_at')->get()->map(function($i) {
-                $order = $this->getOrder($i->id);
+                $order = $this->getOrder($i->sopfor);
                 $i['order']          =   $order;
                 $i['sopForName']     =   $order[0];
                 return $i;
@@ -221,7 +221,10 @@ class AdminController extends Controller
 
 // Common for Admin and Org
 
+// For APP
 
+
+// For APP
 
 
 
@@ -267,24 +270,6 @@ class AdminController extends Controller
             'superprocess'      =>  $superprocess
         ]); 
     }
-
-        
-
-    
-
-    
-
-    
-
-    // public function sopList(){
-    //     $sopList = [];
-    //     $sop = Sop::select('id','userId','sopfor')->get();
-    //     foreach ($sop as $i) { array_push($sopList, $i->sopfor); }
-    //     return response()->json([
-    //         'sopList'=>$sopList,
-    //         'data' => $sop,
-    //     ]); 
-    // }
 
     public function deptList(){
         $data   = Basic::where('type', 'dept')->select('id as deptId','type','tab1 as department','updated_at')->get();

@@ -25,32 +25,32 @@ export class Home extends Component {
                             <img src="/images/static/banner-1.jpg" alt=""/>
                             <div className="tint"></div>
                             <div className="banner-text">
-                                <h2>XRDigitech</h2>
-                                <p>Description for XRDigitech</p>
+                                <h2>PSP</h2>
+                                <p>Description for PSP</p>
                             </div>
                         </div>
                         <div>
                             <img src="/images/static/banner-2.jpg" alt=""/>
                             <div className="tint"></div>
                             <div className="banner-text">
-                                <h2>XRDigitech</h2>
-                                <p>Description for XRDigitech</p>
+                                <h2>PSP</h2>
+                                <p>Description for PSP</p>
                             </div>
                         </div>
                         <div >
                             <img src="/images/static/banner-3.jpg" alt=""/>
                             <div className="tint"></div>
                             <div className="banner-text">
-                                <h2>XRDigitech</h2>
-                                <p>Description for XRDigitech</p>
+                                <h2>PSP</h2>
+                                <p>Description for PSP</p>
                             </div>
                         </div>
                         <div >
                             <img src="/images/static/banner-4.jpg" alt=""/>
                             <div className="tint"></div>
                             <div className="banner-text">
-                            <h2>XRDigitech</h2>
-                                <p>Description for XRDigitech</p>
+                                <h2>PSP</h2>
+                                <p>Description for PSP</p>
                             </div>
                         </div>
                     </Swiper>
