@@ -39,7 +39,6 @@ class Register extends Component {
             }               
             axios.post('/api/register', data)
             .then( res=>{
-                console.log('res.data', res.data)
                 if(res.data.success){
                     localStorage.setItem( 'message', res.data.message )
                     window.location.href = '/awaiting-approval'

@@ -55,11 +55,9 @@ export class Basics extends Component {
         const data={
             id:                         id,
             status:                     status
-        }
-        console.log('data', data)         
+        }        
         axios.post('/api/changeBasicStatus', data)
         .then( res=>{
-            console.log('res.data', res.data)
             if(res.data.success){
                 this.setState({ data: this.state.data.map(x => x.id === parseInt(res.data.data.id) ? x= res.data.data :x ) })
             }
@@ -139,7 +137,6 @@ export class Basics extends Component {
     }
 
     render() {
-        // console.log('this.state', this.state)
         const {currentPage, itemsPerPage } = this.state
         const indexOfLastItem = currentPage * itemsPerPage
         const indexOfFirstItem = indexOfLastItem - itemsPerPage
@@ -171,7 +168,6 @@ export class Basics extends Component {
                 <div className="row">
                     <AdminSidebar/>
                     <div className="col-sm-10">
-                    {this.state.loading? <div className="loading"><img src="/images/icons/loading.gif"/></div> :<>
                         <div className="btn-pag">
                             <button className="amitBtn" onClick={this.addDepartment}>Add Department</button>
                             <div>
@@ -204,9 +200,8 @@ export class Basics extends Component {
                         </div>
                         <table className="table table-hover table-responsive">
                             <thead><tr><td>Sl No.</td><td>Hierarchy</td><td>Date</td><td>Status</td><td>Add a step</td><td>Change name</td></tr></thead>
-                            <tbody>{renderItems}</tbody>
+                            <tbody>{this.state.loading? <tr className="loading"><td colspan="6" className="text-center"><img src="/images/icons/loading.gif"/></td></tr> : renderItems}</tbody>
                         </table>
-                    </>}
                     </div>
                 </div>
             </div>

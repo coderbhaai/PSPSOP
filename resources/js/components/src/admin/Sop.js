@@ -14,7 +14,7 @@ export class Sop extends Component {
             addmodalIsOpen:                 false,
             editmodalIsOpen:                false,
             userId:                         '',
-            // loading:                        true
+            loading:                        true
         }
     } 
     
@@ -28,8 +28,10 @@ export class Sop extends Component {
         const token = JSON.parse(localStorage.getItem('access_token'))
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
         axios.get('/api/sopList').then(res =>{
-            console.log('res.data.data', res.data.data)
-            this.setState({ data: res.data.data, loading: false })
+            this.setState({ 
+                data: res.data.data,
+                loading: false
+            })
         })
     }
 
@@ -40,7 +42,6 @@ export class Sop extends Component {
     searchSpace=(e)=>{ this.setState({search:e.target.value}) }
 
     render() {
-        console.log('this.state', this.state)
         const {currentPage, itemsPerPage } = this.state
         const indexOfLastItem = currentPage * itemsPerPage
         const indexOfFirstItem = indexOfLastItem - itemsPerPage
@@ -62,7 +63,6 @@ export class Sop extends Component {
                 <div className="row">
                     <AdminSidebar/>
                     <div className="col-sm-10">
-                    {this.state.loading? <div className="loading"><img src="/images/icons/loading.gif"/></div> :<>
                         <div className="btn-pag">  
                             <a href="/createSop" className="amitBtn">Create Sop</a>
                             <div>
@@ -85,10 +85,9 @@ export class Sop extends Component {
                                 <td>Update SOP</td>
                             </tr>
                             </thead>
-                            <tbody>{renderItems}</tbody>
+                            <tbody>{this.state.loading? <tr className="loading"><td colspan="3" className="text-center"><img src="/images/icons/loading.gif"/></td></tr> : renderItems}</tbody>
                         </table>
                         <ul className="page-numbers">{renderPagination}</ul>
-                    </>}
                     </div>
                 </div>
             </div>

@@ -1046,20 +1046,6 @@ button.swiper-pagination-bullet {
   height: auto;
 }
 
-.loading {
-  height: 60vh;
-  width: 100%;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-}
-
 .accordion {
   width: 100%;
 }

@@ -25,7 +25,6 @@ export class UpdateSop extends Component {
             const token = JSON.parse(localStorage.getItem('access_token'))
             axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
             axios.get('/api/getSop/'+url).then(res =>{
-                console.log('res.data.data', res.data.data)
                 this.setState({ 
                     sopfor:                         parseInt( url ),
                     sop:                            res.data.data.sop,
@@ -51,7 +50,6 @@ export class UpdateSop extends Component {
         }               
         axios.post('/api/updateSop', data)
         .then( res=>{
-            console.log('res.data', res.data)
             if(res.data.success){
                 localStorage.setItem( 'message', res.data.message )
                 window.location.href = '/sopList'
@@ -62,7 +60,6 @@ export class UpdateSop extends Component {
     }
 
     render() {
-        console.log('this.state', this.state)
         return (
             <div className="container-fluid admin mb-5">
                 <h1 className="heading">Admin Panel (Update SOP)</h1>

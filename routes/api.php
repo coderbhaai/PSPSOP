@@ -10,17 +10,19 @@ Route::post('/register', 'App\Http\Controllers\AuthController@register');
 Route::post('/forgotPassword', 'App\Http\Controllers\AuthController@forgotPassword');
 Route::post('/resetPassword', 'App\Http\Controllers\AuthController@resetPassword');
 Route::post('/appForgotPassword', 'App\Http\Controllers\AuthController@appForgotPassword');
+Route::get('/orgList', 'App\Http\Controllers\AdminController@orgList');
 
 Route::middleware('auth:sanctum')->group(function () {
-        Route::post('/logout/{id}', [AuthController::class, 'logout']);
+        Route::post('/logout', [AuthController::class, 'logout']);
     // Only for Admin
         Route::get('/adminUsers', [AdminController::class, 'adminUsers']);
         Route::post('/changeOrgStatus', [AdminController::class, 'changeOrgStatus']);
     // Only for Admin
-
+        
     // Only for Org
         Route::get('/userUsers', [AdminController::class, 'userUsers']);
         Route::get('/userBasic', [AdminController::class, 'userBasic']);
+        Route::post('/changeUserStatus', [AdminController::class, 'changeUserStatus']);
     // Only for Org
         
     // Common for both
@@ -37,14 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Common for both
 
     // For App
-        
+        Route::get('/deptList', [AdminController::class, 'deptList' ]);
+        Route::get('/sop/{id}', [AdminController::class, 'sop' ]);
     // For App
-    });
-    // Route::post('/changeUserStatus', 'App\Http\Controllers\AdminController@changeUserStatus');
-    
-Route::get('/adminSop/{id}', 'App\Http\Controllers\AdminController@adminSop');
-Route::get('/deptList', 'App\Http\Controllers\AdminController@deptList');
-Route::get('/getSopDetails/{type}/{id}', 'App\Http\Controllers\AdminController@getSopDetails');
-Route::get('/fetchDepartment/{id}', 'App\Http\Controllers\AdminController@fetchDepartment');
-Route::get('/fetchProcess/{id}', 'App\Http\Controllers\AdminController@fetchProcess');
-Route::get('/fetchSubProcess/{id}', 'App\Http\Controllers\AdminController@fetchSubProcess');
+});

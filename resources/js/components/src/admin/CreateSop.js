@@ -31,7 +31,6 @@ export class CreateSop extends Component {
         const token = JSON.parse(localStorage.getItem('access_token'))
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
         axios.get('/api/sopBasic').then(res =>{
-            console.log('res.data', res.data)
             this.setState({ 
                 basicOptions:                   res.data.data,
                 loading:                        false
@@ -45,12 +44,10 @@ export class CreateSop extends Component {
     handleChange1( changeEvent1 ) { this.setState( { sop: changeEvent1.target.value } ) }
 
     processSelected = (e, {value}) => { 
-        console.log('value', value)
         this.setState({ sopfor: value })
         const token = JSON.parse(localStorage.getItem('access_token'))
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
         axios.get('/api/fetchOrder/'+value).then(res =>{
-            console.log('res.data', res.data)
             this.setState({ order: res.data.data }) 
         })
     }
@@ -65,7 +62,6 @@ export class CreateSop extends Component {
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`       
         axios.post('/api/createSop', data)
         .then( res=>{
-            console.log('res.data', res.data)
             if(res.data.success){
                 localStorage.setItem( 'message', res.data.message )
                 window.location.href = '/sopList'
@@ -76,7 +72,6 @@ export class CreateSop extends Component {
     }
     
     render() {
-        console.log('this.state', this.state)
         return (
             <div className="container-fluid admin mb-5">
                 <h1 className="heading">Create SOP {this.state.sopName? 'for '+this.state.sopName : null} </h1>

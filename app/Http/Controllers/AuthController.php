@@ -47,7 +47,7 @@ class AuthController extends Controller
             'role'=>$request->role,
             'status'=>$request->status,
         ];
-        $existing = User::where('org', '=', $request->org)->first();
+        $existing = User::where('role', '=', 'Org')->where('email', $request->email )->first();
         if (!is_null($existing)) {
             $response = ['success'=>false, 'message'=>'Organisation already registered'];
             return response()->json($response, 201);
@@ -71,6 +71,7 @@ class AuthController extends Controller
             $user = \App\Models\User::where('email', $request->email)->first();
             // $tokenResult = $user->createToken('authToken')->plainTextToken;
             $user->save();
+            $response = ['data' => new UserResource($user)];
             $response = [
                 'success'       =>  true,
                 'message'       =>  'Registration succesful',
@@ -91,13 +92,15 @@ class AuthController extends Controller
                 if(!(User::where('email', $request->email)->where('status', 1)->exists())){
                     return response()->json([
                         'success'       =>  false,
-                        'message'       =>  "You have not been approved yet."
+                        'message'       =>  "You have not been approved yet.",
+                        'access_token'  =>  null
                     ]);
                 }
                 if(!(User::where('email', $request->email)->exists())){
                     return response()->json([
                         'success'       =>  false, 
-                        'message'       =>  "No account by this name. Please register"
+                        'message'       =>  "No account by this name. Please register",
+                        'access_token'  =>  null
                     ]);
                 }
                 $credentials = request(['email', 'password']);
@@ -105,16 +108,17 @@ class AuthController extends Controller
                     return response()->json([
                         'success'       => false,
                         'status_code'   => 500,
-                        'message'       => 'You are not Authorised'
+                        'message'       => 'You are not Authorised',
+                        'access_token'  =>  null
                     ]);
                 }
                 $user = User::where('email', $request->email)->first();
                 if ( ! Hash::check($request->password, $user->password, [])) {
                     throw new \Exception('Error in Login');
                 }
-                // $tokenResult = $user->createToken('authToken')->plainTextToken;
-                if($user->role === 'Admin'){ $tokenResult = $user->createToken('authToken', ['Admin'])->plainTextToken; }
-                if($user->role === 'Org'){ $tokenResult = $user->createToken('authToken', ['Org'])->plainTextToken; }
+                if($user->role === 'Admin'){ $tokenResult = $user->createToken('authToken', ['Admin'])->plainTextToken; }else
+                if($user->role === 'Org'){ $tokenResult = $user->createToken('authToken', ['Org'])->plainTextToken; }else
+                if($user->role === 'User'){ $tokenResult = $user->createToken('authToken', ['User'])->plainTextToken; }
                 return response()->json([
                     'success'           => true,
                     'status_code'       => 200,
@@ -212,14 +216,11 @@ class AuthController extends Controller
         }
         return response()->json($response, 201);
     }
-     
-    public function logout($id){
-        $user = User::find($id);
-        $user->tokens()->where('tokenable_id', $id)->delete();
-        return response()->json([
-            'success'           => true,
-            'data'              =>  $user,
-            'message'           => 'You have been logged out'
-        ]);
+
+    public function logout(Request $request)
+    {
+        $request->user()->tokens()->delete();
+        $response = ['data' => 'Logout successful.'];
+        return response()->json($response, 201);
     }
 }

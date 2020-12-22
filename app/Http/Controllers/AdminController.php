@@ -77,6 +77,17 @@ class AdminController extends Controller
         }else{ $response = [ 'success'=>false,  'message'=>'You are not Authorised']; }
     }
 
+    public function changeUserStatus(Request $request){
+        if($this->checkAdminOrOrg()){
+            $dB                   =   User::find($request->id);
+            $dB->status           =   $request->status;
+            $dB-> save();
+            $data = User::where('id', $request->id)->select('id','org','name','role','email','updated_at', 'status')->first();
+            $response = ['success'=>true, 'data' => $data, 'message'=>'Status Updated Succesfully'];
+            return response()->json($response, 201);
+        }else{ $response = [ 'success'=>false,  'message'=>'You are not Authorised']; }
+    }
+
     public function userBasic(){
         $data       = Basic::where('orgId', Auth::user()->id)->select('id', 'step','head', 'name','status', 'updated_at')->get()->map(function($i) {
             if($i->step===0){ $order = [$i->name]; }else{ $order = $this->getOrder($i->id); }
@@ -222,7 +233,28 @@ class AdminController extends Controller
 // Common for Admin and Org
 
 // For APP
+    public function orgList(){
+        $data   = User::where('status', 1)->where('role', 'Org')->select('org', 'id')->get();
+        return response()->json([ 'data' => $data ]); 
+    }
 
+    public function deptList(){
+        $data   = Basic::where('orgId', Auth::user()->org)->where('head', 0 )->where('status', 1)->select('name', 'id')->get();
+        return response()->json([ 
+            'data' => $data
+            ]);
+    }
+
+    public function sop($id){
+        $data =         DB::table('basics')->where('orgId', Auth::user()->org)->where('id', $id)->select('name', 'id')->get()->map(function($i) {
+            $child = Basic::where('orgId', Auth::user()->org)->where('head', $i->id)->where('status', 1)->select('name', 'id')->get();
+            $xx = Sop::where('orgId', Auth::user()->org)->where('sopfor', $i->id)->select('sop', 'updated_at')->first();
+            $i->sop          =   $xx;
+            $i->child        =   $child;
+            return $i;
+        });
+        return $data;
+    }
 
 // For APP
 
@@ -231,122 +263,117 @@ class AdminController extends Controller
 
 
 
-    public function adminBasic(){
-        $dept       = Basic::where('type','dept')->select('id as deptId','type','tab1 as department','updated_at')->get();
-        $process    = Basic::where('type','process')->select('id as processId','type','tab1 as deptId','tab2 as process','updated_at')->get()->map(function($i) {
-            $dept      = Basic::where('id', $i->deptId)->select('id as deptId','type','tab1 as department')->first();
-            $i['dept']          =   $dept;
-            $i['department']    =   $dept->department;
-            return $i;
-        });
-        $subprocess    = Basic::where('type','subprocess')->select('id as subprocessId','type','tab1 as deptId','tab2 as processId','tab3 as subprocess','updated_at')->get()->map(function($i) {
-            $dept      = Basic::where('id', $i->deptId)->select('id as deptId','type','tab1 as department')->first();
-            $process      = Basic::where('id', $i->processId)->select('id as processId','type','tab2 as process')->first();
-            $i['dept']          =   $dept;
-            $i['department']    =   $dept->department;
-            $i['process']       =   $process;
-            $i['processName']   =   $process->process;
-            return $i;
-        });
-        $superprocess = Basic::where('type', 'superprocess')->select('id as superprocessId','type','tab1 as deptId','tab2 as processId','tab3 as subOrSuperId','tab4 as superprocess','updated_at')->get()->map(function($i) {
-            $dept           = Basic::where('id', $i->deptId)->select('id as deptId','type','tab1 as department')->first();
-            $process        = Basic::where('id', $i->processId)->select('id as processId','type','tab2 as process')->first();
-            $subOrSuper     = Basic::where('id', $i->subOrSuperId)->select('id as yy','type','tab2 as process')->get()->map(function($j) {
-                $q          = Basic::where('id', $j->yy)->select('id as xx','type','tab3 as subOrSuper', 'tab4 as superprocess')->first();
-                $j['finalSuper']       =   $q;
-                return $j;
-            });
-            $i['dept']          =   $dept;
-            $i['department']    =   $dept->department;
-            $i['process']       =   $process;
-            $i['processName']   =   $process->process;
-            $i['subOrSuper']    =   $subOrSuper[0];
-            return $i;
-        });
-        return response()->json([
-            'dept'              =>  $dept,
-            'process'           =>  $process,
-            'subprocess'        =>  $subprocess,
-            'superprocess'      =>  $superprocess
-        ]); 
-    }
+    // public function adminBasic(){
+    //     $dept       = Basic::where('type','dept')->select('id as deptId','type','tab1 as department','updated_at')->get();
+    //     $process    = Basic::where('type','process')->select('id as processId','type','tab1 as deptId','tab2 as process','updated_at')->get()->map(function($i) {
+    //         $dept      = Basic::where('id', $i->deptId)->select('id as deptId','type','tab1 as department')->first();
+    //         $i['dept']          =   $dept;
+    //         $i['department']    =   $dept->department;
+    //         return $i;
+    //     });
+    //     $subprocess    = Basic::where('type','subprocess')->select('id as subprocessId','type','tab1 as deptId','tab2 as processId','tab3 as subprocess','updated_at')->get()->map(function($i) {
+    //         $dept      = Basic::where('id', $i->deptId)->select('id as deptId','type','tab1 as department')->first();
+    //         $process      = Basic::where('id', $i->processId)->select('id as processId','type','tab2 as process')->first();
+    //         $i['dept']          =   $dept;
+    //         $i['department']    =   $dept->department;
+    //         $i['process']       =   $process;
+    //         $i['processName']   =   $process->process;
+    //         return $i;
+    //     });
+    //     $superprocess = Basic::where('type', 'superprocess')->select('id as superprocessId','type','tab1 as deptId','tab2 as processId','tab3 as subOrSuperId','tab4 as superprocess','updated_at')->get()->map(function($i) {
+    //         $dept           = Basic::where('id', $i->deptId)->select('id as deptId','type','tab1 as department')->first();
+    //         $process        = Basic::where('id', $i->processId)->select('id as processId','type','tab2 as process')->first();
+    //         $subOrSuper     = Basic::where('id', $i->subOrSuperId)->select('id as yy','type','tab2 as process')->get()->map(function($j) {
+    //             $q          = Basic::where('id', $j->yy)->select('id as xx','type','tab3 as subOrSuper', 'tab4 as superprocess')->first();
+    //             $j['finalSuper']       =   $q;
+    //             return $j;
+    //         });
+    //         $i['dept']          =   $dept;
+    //         $i['department']    =   $dept->department;
+    //         $i['process']       =   $process;
+    //         $i['processName']   =   $process->process;
+    //         $i['subOrSuper']    =   $subOrSuper[0];
+    //         return $i;
+    //     });
+    //     return response()->json([
+    //         'dept'              =>  $dept,
+    //         'process'           =>  $process,
+    //         'subprocess'        =>  $subprocess,
+    //         'superprocess'      =>  $superprocess
+    //     ]); 
+    // }
 
-    public function deptList(){
-        $data   = Basic::where('type', 'dept')->select('id as deptId','type','tab1 as department','updated_at')->get();
-        return response()->json([
-            'data' => $data
-        ]); 
-    }
+    
 
-    private function fetchSop($id){
-        $data = Sop::where('sopfor', $id )->select('sop as sopData','updated_at as sopUpdatedAt')->first();
-        return $data;
-    }
+    // private function fetchSop($id){
+    //     $data = Sop::where('sopfor', $id )->select('sop as sopData','updated_at as sopUpdatedAt')->first();
+    //     return $data;
+    // }
 
-    public function getSopDetails($type, $id){
-        if($type === 'dept'){
-            $basic  =   Basic::where('id', $id)->select('id as deptId','type','tab1 as department', 'updated_at as basicTime')->get()->map(function($i) {
-                $sop                   =   $this->fetchSop($i->deptId);
-                $i['sop']              =   $sop;
-                return $i;
-            });
-            $data   =   Basic::where('tab1', $id)->where('type', 'process')->select('id as processId','type','tab2 as process')->get();
-        }
+    // public function getSopDetails($type, $id){
+    //     if($type === 'dept'){
+    //         $basic  =   Basic::where('id', $id)->select('id as deptId','type','tab1 as department', 'updated_at as basicTime')->get()->map(function($i) {
+    //             $sop                   =   $this->fetchSop($i->deptId);
+    //             $i['sop']              =   $sop;
+    //             return $i;
+    //         });
+    //         $data   =   Basic::where('tab1', $id)->where('type', 'process')->select('id as processId','type','tab2 as process')->get();
+    //     }
 
-        return response()->json([
-            'data'          =>  $data,
-            'basic'         =>  $basic[0],
-        ]); 
-    }
+    //     return response()->json([
+    //         'data'          =>  $data,
+    //         'basic'         =>  $basic[0],
+    //     ]); 
+    // }
 
-    public function fetchDepartment($id){
-        $data  =   Basic::where('id', $id)->select('id as deptId','type','tab1 as department', 'updated_at as basicTime')->get()->map(function($i) {
-            $sop                   =   $this->fetchSop($i->deptId);
-            $process               =   Basic::where('tab1', $i->deptId)->where('type', 'process')->select('id as processId','type','tab2 as process')->get();
-            $i['sop']              =   $sop;
-            $i['process']          =   $process;
-            return $i;
-        });
-        return response()->json([ 
-            'data' =>  $data[0] 
-        ]); 
-    }
+    // public function fetchDepartment($id){
+    //     $data  =   Basic::where('id', $id)->select('id as deptId','type','tab1 as department', 'updated_at as basicTime')->get()->map(function($i) {
+    //         $sop                   =   $this->fetchSop($i->deptId);
+    //         $process               =   Basic::where('tab1', $i->deptId)->where('type', 'process')->select('id as processId','type','tab2 as process')->get();
+    //         $i['sop']              =   $sop;
+    //         $i['process']          =   $process;
+    //         return $i;
+    //     });
+    //     return response()->json([ 
+    //         'data' =>  $data[0] 
+    //     ]); 
+    // }
 
-    public function fetchProcess($id){
-        $data  =   Basic::where('id', $id)->select('id as processId','type','tab1', 'tab2 as process', 'updated_at as basicTime')->get()->map(function($i) {
-            $dept  =   Basic::where('id', $i->tab1)->select('id as deptId','type','tab1 as dept')->first();
-            $sop                   =   $this->fetchSop($i->processId);
-            $subprocess            =   Basic::where('tab2', $i->processId)->where('type', 'subprocess')->select('id as subprocessId','type','tab3 as subprocess')->get();
-            $i['sop']              =   $sop;
-            $i['subprocess']       =   $subprocess;
-            return $i;
-        });
-        return response()->json([ 
-            'data' =>  $data[0] 
-        ]); 
-    }
+    // public function fetchProcess($id){
+    //     $data  =   Basic::where('id', $id)->select('id as processId','type','tab1', 'tab2 as process', 'updated_at as basicTime')->get()->map(function($i) {
+    //         $dept  =   Basic::where('id', $i->tab1)->select('id as deptId','type','tab1 as dept')->first();
+    //         $sop                   =   $this->fetchSop($i->processId);
+    //         $subprocess            =   Basic::where('tab2', $i->processId)->where('type', 'subprocess')->select('id as subprocessId','type','tab3 as subprocess')->get();
+    //         $i['sop']              =   $sop;
+    //         $i['subprocess']       =   $subprocess;
+    //         return $i;
+    //     });
+    //     return response()->json([ 
+    //         'data' =>  $data[0] 
+    //     ]); 
+    // }
 
-    public function fetchSubProcess($id){
-        $data  =   Basic::where('id', $id)->select('id as subprocessId','type','tab1', 'tab3 as subprocess', 'updated_at as basicTime')->get()->map(function($i) {
-            $dept       =   Basic::where('id', $i->tab1)->select('id as deptId','type','tab1 as dept')->first();
-            $process    =   Basic::where('id', $i->subprocessId)->select('id as processId','type','tab2 as process')->first();
-            $sop                     =   $this->fetchSop($i->subprocessId);
-            // if(count($sop)){ 
-            //     $finalsop = $sop[0];
-            // }else{
-            //     $finalsop = null;
-            // }
-            $superprocess            =   Basic::where('tab3', $i->subprocessId)->where('type', 'superprocess')->select('id as superprocessId','type','tab4 as superprocess')->get();
-            $i['dept']               =   $dept;
-            $i['process']            =   $process;
-            $i['sop']                =   $sop;
-            $i['superprocess']       =   $superprocess;
-            return $i;
-        });
-        return response()->json([ 
-            'data' =>  $data[0]
-        ]); 
-    }
+    // public function fetchSubProcess($id){
+    //     $data  =   Basic::where('id', $id)->select('id as subprocessId','type','tab1', 'tab3 as subprocess', 'updated_at as basicTime')->get()->map(function($i) {
+    //         $dept       =   Basic::where('id', $i->tab1)->select('id as deptId','type','tab1 as dept')->first();
+    //         $process    =   Basic::where('id', $i->subprocessId)->select('id as processId','type','tab2 as process')->first();
+    //         $sop                     =   $this->fetchSop($i->subprocessId);
+    //         // if(count($sop)){ 
+    //         //     $finalsop = $sop[0];
+    //         // }else{
+    //         //     $finalsop = null;
+    //         // }
+    //         $superprocess            =   Basic::where('tab3', $i->subprocessId)->where('type', 'superprocess')->select('id as superprocessId','type','tab4 as superprocess')->get();
+    //         $i['dept']               =   $dept;
+    //         $i['process']            =   $process;
+    //         $i['sop']                =   $sop;
+    //         $i['superprocess']       =   $superprocess;
+    //         return $i;
+    //     });
+    //     return response()->json([ 
+    //         'data' =>  $data[0]
+    //     ]); 
+    // }
 
 
     

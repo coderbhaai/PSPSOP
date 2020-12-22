@@ -20,8 +20,7 @@ export class User extends Component {
         this.setState({ active: window.location.pathname })
         const token = JSON.parse(localStorage.getItem('access_token'))
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
-        axios.get('/api/adminUsers').then(res =>{ 
-            console.log('res.data.data', res.data.data)
+        axios.get('/api/adminUsers').then(res =>{
             this.setState({ users: res.data.data }) })
     }
 
