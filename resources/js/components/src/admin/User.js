@@ -12,6 +12,7 @@ export class User extends Component {
             currentPage:            1,
             itemsPerPage:           100,
             search:                 '',
+            loading:                true,
         }
     }
     
@@ -21,7 +22,12 @@ export class User extends Component {
         const token = JSON.parse(localStorage.getItem('access_token'))
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
         axios.get('/api/adminUsers').then(res =>{
-            this.setState({ users: res.data.data }) })
+            console.log('res.data', res.data)
+            this.setState({ 
+                users:                  res.data.data,
+                loading:                false,
+            }) 
+        })
     }
 
     onChange= (e) => { this.setState({ [e.target.name]: e.target.value }) }
@@ -30,13 +36,17 @@ export class User extends Component {
     callSwal=(mesg)=>{ swal({ title: mesg, timer: 4000 }) }
     searchSpace=(e)=>{ this.setState({search:e.target.value}) }
 
-    changeOrgStatus=(id, value)=>{
-        if(value == 1){ var status = 0 }else{ var status = 1}
+    makeOrgAdmin=(id, value)=>{
+        if(value == 1){ var role = 'User' }else{ var role = 'Org'}
+        console.log('value, role', value, role)
+
         const data={
             id:                         id,
-            status:                     status
-        }               
-        axios.post('/api/changeOrgStatus', data)
+            role:                       role
+        }        
+        const token = JSON.parse(localStorage.getItem('access_token'))
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
+        axios.post('/api/makeOrgAdmin', data)
         .then( res=>{
             if(res.data.success){
                 this.setState({ users: this.state.users.map(x => x.id === parseInt(res.data.data.id) ? x= res.data.data :x ) })
@@ -46,7 +56,25 @@ export class User extends Component {
         .catch(err=>console.log('err', err))
     }
 
+    changeUserStatusByAdmin=(id, value)=>{
+        if(value == 1){ var status = 0 }else{ var status = 1}
+        const data={
+            id:                         id,
+            status:                     status
+        }               
+        axios.post('/api/changeUserStatusByAdmin', data)
+        .then( res=>{
+            console.log('res.data', res.data)
+            if(res.data.success){
+                this.setState({ users: this.state.users.map(x => x.id === parseInt(res.data.data.id) ? x= res.data.data :x ) })
+            }
+            this.callSwal(res.data.message)
+        })
+        .catch(err=>console.log('err', err))
+    }
+
     render() {
+        console.log('this.state', this.state)
         const {currentPage, itemsPerPage } = this.state
         const indexOfLastItem = currentPage * itemsPerPage
         const indexOfFirstItem = indexOfLastItem - itemsPerPage
@@ -54,20 +82,26 @@ export class User extends Component {
             return (
                 <tr key={index}>
                     <td>{index +1}</td>
-                    <td>{i.org}</td>
+                    <td>{i.orgName}<br/>{i.orgStatus==1? 'Approved': 'Not Approved'}</td>
                     <td>{i.name}<br/>{i.email}</td>
-                    <td>{i.role}</td>
+                    <td>{i.role=='Org'? 'Org Admin' : i.role}</td>
                     <td>{moment(i.updated_at).format("DD MMMM  YYYY")}</td>
-                    <td>{i.status==1? 'Approved' : 'Not Approved'}</td>
+                    <td>{i.userStatus==1? 'Approved' : 'Not Approved'}</td>
                     <td>
-                        {i.role === 'Org' ?
-                        <div className="onoffswitch">
-                            <input type="checkbox" name="category" className="onoffswitch-checkbox" id={i.email} onChange={(e)=>this.changeOrgStatus(i.id, e.target.value)} value={i.status} checked={i.status==1? true : false}/>
-                            <label className="onoffswitch-label" htmlFor={i.email}><span className="onoffswitch-inner"></span><span className="onoffswitch-switch"></span></label>
-                        </div>
-                        : i.role === 'User'?
-                            i.status==1? 'Approved' : 'Not Approved'
-                        : null}
+                        {i.role != 'Admin'?
+                            <div className="onoffswitch">
+                                <input type="checkbox" name="category" className="onoffswitch-checkbox" id={'Switch-'+i.id} onChange={(e)=>this.makeOrgAdmin(i.id, e.target.value)} value={i.role=='Org'? 1 : 0} checked={i.role=='Org'? true : false}/>
+                                <label className="onoffswitch-label" htmlFor={'Switch-'+i.id}><span className="onoffswitch-inner"></span><span className="onoffswitch-switch"></span></label>
+                            </div>
+                        :null}
+                    </td>
+                    <td>
+                        {i.role != 'Admin'?
+                            <div className="onoffswitch">
+                                <input type="checkbox" name="user" className="onoffswitch-checkbox" id={'Switch2-'+i.id} onChange={(e)=>this.changeUserStatusByAdmin(i.id, e.target.value)} value={i.userStatus} checked={i.userStatus==1? true : false}/>
+                                <label className="onoffswitch-label" htmlFor={'Switch2-'+i.id}><span className="onoffswitch-inner"></span><span className="onoffswitch-switch"></span></label>
+                            </div>
+                        :null}
                     </td>
                 </tr>
             )})
@@ -103,10 +137,11 @@ export class User extends Component {
                                     <td>Role</td>                                              
                                     <td>Date</td>
                                     <td>Status</td>
-                                    <td>Action</td>
+                                    <td>Make Admin of Org</td>
+                                    <td>User Status</td>
                                 </tr>
                                 </thead>
-                                <tbody>{renderItems}</tbody>
+                                <tbody>{this.state.loading? <tr className="loading"><td colSpan="7" className="text-center"><img src="/images/icons/loading.gif"/></td></tr> : renderItems}</tbody>
                             </table>
                             <ul className="page-numbers">{renderPagination}</ul>
                         </div>

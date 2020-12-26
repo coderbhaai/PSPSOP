@@ -1,9 +1,8 @@
-$blue1 : #1a74d2;
-$blue2 : #1356be;
-$blue3 : #0c3aa9;
-$blue4 : #071d95;
-$blue5 : #010080;
-$action: #ad270c;
+$blue : #004260;
+$orange : #ea700c;
+input:focus, button:focus{
+  outline: none;
+}
 ul{
   margin-bottom: 0;
 }
@@ -25,7 +24,7 @@ a:hover{
   text-decoration: none;
 }
 .navbar{
-    background: $blue1;
+    background: $blue;
 }
 .nav-link, .nav-link:hover{
     color: #fff;
@@ -37,7 +36,7 @@ a:hover{
     padding: 10px;
 }
 .cpy-right{
-    background: $blue1;
+    background: $blue;
 }
 .cpy-right p{
     margin: 1em 0;
@@ -65,7 +64,7 @@ a:hover{
     border: 1px solid currentColor;
     border-radius: 2px;
     z-index: 1;
-    background: $blue2;
+    background: $orange;
     margin: 1em auto;
     text-align: center;
 }
@@ -630,7 +629,7 @@ a:hover{
   font-weight: 600;
 }
 .sidebar ul li a.active{
-  background-color: $blue2;
+  background-color: $blue;
   color: #fff;
   border-radius: 5px;
   text-align: center;
@@ -668,7 +667,7 @@ a:hover{
   color:#fff;
 }
 .admin table thead{
-  background-color: $action;
+  background-color: $orange;
   color: #fff;
 }
 .page-numbers {
@@ -681,7 +680,7 @@ a:hover{
   margin-left: 1em;
 }
 .page-numbers>li.active {
-  background: $action;
+  background: $orange;
   color: #fff;
 }
 .admin ul li {
@@ -694,7 +693,7 @@ a:hover{
   cursor: pointer;
   padding: 5px 14px;
   font-size: 16px;
-  background: $blue1;
+  background: $blue;
   color: #fff;
   border-radius: 5px;
 }
@@ -836,7 +835,7 @@ a:hover{
 }
 .nav-tabs .nav-link.active{
   color: #ffffff;
-  background-color: $blue3;
+  background-color: $blue;
   border: none;
   border-radius: 5px;
 }

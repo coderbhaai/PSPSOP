@@ -16,16 +16,21 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
     // Only for Admin
         Route::get('/adminUsers', [AdminController::class, 'adminUsers']);
+        Route::get('/adminOrg', [AdminController::class, 'adminOrg']);
+        Route::post('/createOrg', [AdminController::class, 'createOrg']);
+        Route::post('/updateOrg', [AdminController::class, 'updateOrg']);
         Route::post('/changeOrgStatus', [AdminController::class, 'changeOrgStatus']);
+        Route::post('/makeOrgAdmin', [AdminController::class, 'makeOrgAdmin']);
+        Route::post('/changeUserStatusByAdmin', [AdminController::class, 'changeUserStatusByAdmin']);
     // Only for Admin
         
     // Only for Org
         Route::get('/userUsers', [AdminController::class, 'userUsers']);
-        Route::get('/userBasic', [AdminController::class, 'userBasic']);
         Route::post('/changeUserStatus', [AdminController::class, 'changeUserStatus']);
-    // Only for Org
+        // Only for Org
         
-    // Common for both
+        // Common for both
+        Route::get('/userBasic', [AdminController::class, 'userBasic']);
         Route::post('/createBasic', [AdminController::class, 'createBasic']);
         Route::post('/updateBasic', [AdminController::class, 'updateBasic']);
         Route::post('/changeBasicStatus', [AdminController::class, 'changeBasicStatus']);

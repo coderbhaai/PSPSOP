@@ -35,7 +35,7 @@ export class User extends Component {
     searchSpace=(e)=>{ this.setState({search:e.target.value}) }
     callSwal=(mesg)=>{ swal({ title: mesg, timer: 4000 }) }
 
-    changeOrgStatus=(id, value)=>{
+    changeUserStatus=(id, value)=>{
         if(value == 1){ var status = 0 }else{ var status = 1}
         const data={
             id:                         id,
@@ -64,7 +64,7 @@ export class User extends Component {
                     <td>{moment(i.updated_at).format("DD MMMM  YYYY")}</td>
                     <td>
                         <div className="onoffswitch">
-                            <input type="checkbox" name="category" className="onoffswitch-checkbox" id={i.email} onChange={(e)=>this.changeOrgStatus(i.id, e.target.value)} value={i.status} checked={i.status==1? true : false}/>
+                            <input type="checkbox" name="category" className="onoffswitch-checkbox" id={i.email} onChange={(e)=>this.changeUserStatus(i.id, e.target.value)} value={i.status} checked={i.status==1? true : false}/>
                             <label className="onoffswitch-label" htmlFor={i.email}><span className="onoffswitch-inner"></span><span className="onoffswitch-switch"></span></label>
                         </div>
                     </td>
@@ -103,7 +103,7 @@ export class User extends Component {
                                     <td>Status</td>
                                 </tr>
                                 </thead>
-                                <tbody>{this.state.loading? <tr className="loading"><td colspan="5" className="text-center"><img src="/images/icons/loading.gif"/></td></tr> : renderItems}</tbody>
+                                <tbody>{this.state.loading? <tr className="loading"><td colSpan="5" className="text-center"><img src="/images/icons/loading.gif"/></td></tr> : renderItems}</tbody>
                             </table>
                             <ul className="page-numbers">{renderPagination}</ul>
                         </div>

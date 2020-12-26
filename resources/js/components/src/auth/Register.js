@@ -6,6 +6,7 @@ class Register extends Component {
     constructor(props) {
         super(props)    
         this.state = {
+            data:                       [],
             org:                        '',
             name:                       '',
             email:                      '',
@@ -13,6 +14,7 @@ class Register extends Component {
             password:                   '',
             password_confirmation:      '',
             status:                     0,
+            loading:                    true,
         }
     }
 
@@ -21,6 +23,18 @@ class Register extends Component {
         if(typeof(Storage) !== "undefined" && JSON.parse(localStorage.getItem('user'))){
             if(JSON.parse(localStorage.getItem('user')).role){ window.location.href = '/' }
         }
+        this.callApi()
+    }
+
+    callApi=()=>{
+        axios.get('/api/orgList').then(res =>{
+            console.log('res.data', res.data)
+            this.setState({ 
+                data:                  res.data.data,
+                loading:                false,
+            })
+            if(!res.data.data.length){ this.setState({ org: 'dummy' }) }
+        })
     }
 
     submitHandler = e => {
@@ -29,10 +43,10 @@ class Register extends Component {
             this.callSwal('Passwords Do Not Match')
         }else{
             const data={
-                org:                        this.state.org, 
+                org:                        parseInt( this.state.org ), 
                 name:                       this.state.name, 
                 email:                      this.state.email,
-                role:                       'Org',
+                role:                       'User',
                 status:                     this.state.status,
                 password:                   this.state.password,
                 password_confirmation:      this.state.password_confirmation,
@@ -54,6 +68,7 @@ class Register extends Component {
     callSwal=(mesg)=>{ swal({ title: mesg, timer: 4000 }) }
     
     render() {
+        console.log('this.state', this.state)
         return (
             <>
                 <section className="register py-5">
@@ -63,8 +78,15 @@ class Register extends Component {
                             <div className="col-sm-3"></div>
                             <div className="col-sm-6">
                                 <form onSubmit={this.submitHandler}>
-                                    <label>Organisation Name</label>
-                                    <input type="text" className="form-control" name="org" required placeholder="Name of Organisation Please" onChange={this.onChange}/>
+                                    {this.state.data.length && !this.state.loading ?
+                                        <>
+                                            <label>Organisation Name</label>
+                                            <select className="form-control" name='org' required onChange={this.onChange}>
+                                                <option value=''>Select Organisation</option>
+                                                {this.state.data.map((i, index)=>( <option key={index} value={i.id}>{i.org}</option>))}
+                                            </select>
+                                        </>
+                                    : null}
                                     <label>Name</label>
                                     <input type="text" className="form-control" name="name" required placeholder="Name Please" onChange={this.onChange}/>
                                     <label>E-Mail</label>

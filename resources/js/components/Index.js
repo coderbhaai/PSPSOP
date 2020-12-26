@@ -14,6 +14,7 @@ import ForgotPassword from './src/auth/ForgotPassword'
 import ResetPassword from './src/auth/ResetPassword'
 
 import AdminUser from './src/admin/User'
+import AdminOrg from './src/admin/Org'
 import Basics from './src/admin/Basics'
 
 import OrgUser from './src/org/User'
@@ -39,6 +40,7 @@ function Index() {
                 <Route exact path="/forgotPassword" component={ForgotPassword}/>
                 <Route exact path="/resetPassword/:id" component={ResetPassword}/>
                 
+                <Route exact path="/admin-org" component={RequireAdmin( AdminOrg ) }/>
                 <Route exact path="/admin-users" component={RequireAdmin( AdminUser ) }/>
 
                 <Route exact path="/org-users" component={RequireOrg( OrgUser ) }/>

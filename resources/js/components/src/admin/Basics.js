@@ -37,6 +37,7 @@ export class Basics extends Component {
         const token = JSON.parse(localStorage.getItem('access_token'))
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
         axios.get('/api/userBasic').then(res =>{
+            console.log('res.data', res.data)
             this.setState({ 
                 data:                           res.data.data,
                 loading: false 
@@ -55,7 +56,9 @@ export class Basics extends Component {
         const data={
             id:                         id,
             status:                     status
-        }        
+        }   
+        const token = JSON.parse(localStorage.getItem('access_token'))
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`     
         axios.post('/api/changeBasicStatus', data)
         .then( res=>{
             if(res.data.success){
@@ -137,6 +140,7 @@ export class Basics extends Component {
     }
 
     render() {
+        console.log('this.state', this.state)
         const {currentPage, itemsPerPage } = this.state
         const indexOfLastItem = currentPage * itemsPerPage
         const indexOfFirstItem = indexOfLastItem - itemsPerPage
@@ -150,8 +154,8 @@ export class Basics extends Component {
                     <td>{moment(i.updated_at).format("DD MMMM  YYYY")}</td>
                     <td>
                         <div className="onoffswitch">
-                            <input type="checkbox" name="category" className="onoffswitch-checkbox" id={index} onChange={(e)=>this.changeBasicStatus(i.id, e.target.value)} value={i.status} checked={i.status==1? true : false}/>
-                            <label className="onoffswitch-label" htmlFor={index}><span className="onoffswitch-inner"></span><span className="onoffswitch-switch"></span></label>
+                            <input type="checkbox" name="category" className="onoffswitch-checkbox" id={'Switch-'+i.id} onChange={(e)=>this.changeBasicStatus(i.id, e.target.value)} value={i.status} checked={i.status==1? true : false}/>
+                            <label className="onoffswitch-label" htmlFor={'Switch-'+i.id}><span className="onoffswitch-inner"></span><span className="onoffswitch-switch"></span></label>
                         </div>
                     </td>
                     <td className="editIcon text-center"><img src="/images/icons/edit.svg" onClick={()=>this.addProcess(i)}/></td>
@@ -200,7 +204,7 @@ export class Basics extends Component {
                         </div>
                         <table className="table table-hover table-responsive">
                             <thead><tr><td>Sl No.</td><td>Hierarchy</td><td>Date</td><td>Status</td><td>Add a step</td><td>Change name</td></tr></thead>
-                            <tbody>{this.state.loading? <tr className="loading"><td colspan="6" className="text-center"><img src="/images/icons/loading.gif"/></td></tr> : renderItems}</tbody>
+                            <tbody>{this.state.loading? <tr className="loading"><td colSpan="6" className="text-center"><img src="/images/icons/loading.gif"/></td></tr> : renderItems}</tbody>
                         </table>
                     </div>
                 </div>

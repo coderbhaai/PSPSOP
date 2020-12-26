@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use DB;
 use File;
 use Auth;
+use App\Models\Org;
 use App\Models\User;
 use App\Models\Basic;
 use App\Models\Sop;
@@ -22,9 +23,18 @@ class AdminController extends Controller
             $i['order']          =   $order;
             return $i;
         });
-
         return $data[0];
     }
+
+    // private function getUser($id){
+    //     $data        =   DB::table('users')
+    //                     ->where('users.id', $id)
+    //                     ->leftJoin('orgs', 'orgs.id', '=', 'users.org')
+    //                     ->select([ 'users.id', 'users.name','users.email', 'users.role', 'users.org','users.status as userStatus','users.updated_at', 'orgs.name as orgName', 'orgs.email as orgEmail', 'orgs.status as orgStatus' ])
+    //                     ->get();
+
+    //     return $data[0];
+    // }
 
     public function adminSop($id){
         $sop = Sop::where('userId', $id )->select('id','userId','sopfor','updated_at')->get()->map(function($i) {
@@ -45,21 +55,90 @@ class AdminController extends Controller
     }
 
 // Admin Functions
+    public function adminOrg(){
+        if($this->checkAdmin()){
+            $org = org::select('id','name','email','status','updated_at')->get();
+            return response()->json([
+                'data' => $org
+            ]);
+        }else{ $response = [ 'success'=>false,  'message'=>'You are not Authorised']; }
+    }
+
+    public function createOrg(Request $request){
+        if($this->checkAdmin()){
+            $dB                     =   new Org;
+            $dB->name               =   $request->name;
+            $dB->email              =   $request->email;
+            $dB->status             =   $request->status;
+            $dB-> save();
+            $data = Org::limit(1)->orderBy('id', 'desc')->select('id','name','email','status','updated_at')->first();
+            return response()->json([
+                'success'=>true,
+                'message'=>'Org Added Succesfully',
+                'data' => $data
+            ]);
+        }else{ $response = [ 'success'=>false,  'message'=>'You are not Authorised']; }
+    }
+
+    public function updateOrg(Request $request){
+        if($this->checkAdmin()){
+            $dB                      =   Org::find($request->id);
+            $dB->name                =   $request->name;
+            $dB->email               =   $request->email;
+            $dB->status              =   $request->status;
+            $dB-> save();
+            $data = Org::where('id', $request->id)->select('id','name','email','status','updated_at')->first();
+            $response = ['success'=>true, 'data'=>$data, 'message' => "Org updated succesfully"];
+            return response()->json($response, 201);
+        }else{ $response = [ 'success'=>false,  'message'=>'You are not Authorised']; }
+    }
+
     public function adminUsers(){
         if($this->checkAdmin()){
-            $user = User::select('id','org','name','role','email','updated_at', 'status')->get();
+            $data        =   DB::table('users')->leftJoin('orgs', 'orgs.id', '=', 'users.org')
+                                ->select([ 'users.id', 'users.name','users.email', 'users.role', 'users.org','users.status as userStatus','users.updated_at', 'orgs.name as orgName', 'orgs.email as orgEmail', 'orgs.status as orgStatus' ])
+                                ->get();
             return response()->json([
-                'data' => $user
+                'data' => $data
             ]);
+        }else{ $response = [ 'success'=>false,  'message'=>'You are not Authorised']; }
+    }
+
+    public function changeUserStatusByAdmin(Request $request){
+        if($this->checkAdmin()){
+            $dB                   =   User::find($request->id);
+            $dB->status           =   $request->status;
+            $dB-> save();
+            $data        =   DB::table('users')->leftJoin('orgs', 'orgs.id', '=', 'users.org')
+                                ->where('users.id', $request->id)
+                                ->select([ 'users.id', 'users.name','users.email', 'users.role', 'users.org','users.status as userStatus','users.updated_at', 'orgs.name as orgName', 'orgs.email as orgEmail', 'orgs.status as orgStatus' ])
+                                ->first();
+            $response = ['success'=>true, 'data' => $data, 'message'=>'Status Updated Succesfully'];
+            return response()->json($response, 201);
         }else{ $response = [ 'success'=>false,  'message'=>'You are not Authorised']; }
     }
 
     public function changeOrgStatus(Request $request){
         if($this->checkAdmin()){
-            $dB                   =   User::find($request->id);
+            $dB                   =   Org::find($request->id);
             $dB->status           =   $request->status;
             $dB-> save();
-            $data = User::where('id', $request->id)->select('id','org','name','role','email','updated_at', 'status')->first();
+            $data = Org::where('id', $request->id)->select('id','name','email','status','updated_at')->first();
+            $response = ['success'=>true, 'data' => $data, 'message'=>'Status Updated Succesfully'];
+            return response()->json($response, 201);
+        }else{ $response = [ 'success'=>false,  'message'=>'You are not Authorised']; }
+    }
+
+    public function makeOrgAdmin(Request $request){
+        if($this->checkAdmin()){
+            $dB                     =   User::find($request->id);
+            $dB->role               =   $request->role;
+            $dB-> save();            
+            $data        =   DB::table('users')
+                                ->where('users.id', $request->id)
+                                ->leftJoin('orgs', 'orgs.id', '=', 'users.org')
+                                ->select([ 'users.id', 'users.name','users.email', 'users.role', 'users.org','users.status as userStatus','users.updated_at', 'orgs.name as orgName', 'orgs.email as orgEmail', 'orgs.status as orgStatus' ])
+                                ->first();
             $response = ['success'=>true, 'data' => $data, 'message'=>'Status Updated Succesfully'];
             return response()->json($response, 201);
         }else{ $response = [ 'success'=>false,  'message'=>'You are not Authorised']; }
@@ -69,7 +148,7 @@ class AdminController extends Controller
 // Org Functions
     public function userUsers(){
         if($this->checkOrg()){
-            $data = User::where('org', Auth::user()->id)->select('id','org','name','role','email','updated_at', 'status')->get();
+            $data = User::where('org', Auth::user()->org)->select('id','org','name','role','email','updated_at', 'status')->get();
             return response()->json([
                 'success'=>true,
                 'data' => $data
@@ -89,15 +168,17 @@ class AdminController extends Controller
     }
 
     public function userBasic(){
-        $data       = Basic::where('orgId', Auth::user()->id)->select('id', 'step','head', 'name','status', 'updated_at')->get()->map(function($i) {
-            if($i->step===0){ $order = [$i->name]; }else{ $order = $this->getOrder($i->id); }
-            $i['order']          =   $order;
-            return $i;
-        });
-        return response()->json([
-            'success'=>true,
-            'data' => $data
-        ]);
+        if($this->checkAdminOrOrg()){
+            $data       = Basic::where('orgId', Auth::user()->org)->select('id', 'step','head', 'name','status', 'updated_at')->get()->map(function($i) {
+                if($i->step===0){ $order = [$i->name]; }else{ $order = $this->getOrder($i->id); }
+                $i['order']          =   $order;
+                return $i;
+            });
+            return response()->json([
+                'success'=>true,
+                'data' => $data
+            ]);
+        }
     }
 // Org Functions
 
@@ -121,7 +202,7 @@ class AdminController extends Controller
     public function createBasic(Request $request){
         if($this->checkAdminOrOrg()){
             $dB                      =   new Basic;
-            $dB->orgId               =   Auth::user()->id;
+            $dB->orgId               =   Auth::user()->org;
             $dB->step                =   $request->step;
             $dB->head                =   $request->head;
             $dB->name                =   $request->name;
@@ -149,6 +230,7 @@ class AdminController extends Controller
             $dB                   =   Basic::find($request->id);
             $dB->status           =   $request->status;
             $dB-> save();
+
             $data       =   $this->getBasic($request->id);
             $response = ['success'=>true, 'data' => $data, 'message'=>'Status Updated Succesfully'];
             return response()->json($response, 201);
@@ -157,8 +239,8 @@ class AdminController extends Controller
 
     public function sopBasic(){
         if($this->checkAdminOrOrg()){
-            $userId = Auth::user()->id;
-            $data = DB::select( DB::raw("SELECT id as value, name as text from basics where orgId='$userId' AND id not in(select sopfor from sops)") );
+            $orgId = Auth::user()->org;
+            $data = DB::select( DB::raw("SELECT id as value, name as text from basics where orgId='$orgId' AND id not in(select sopfor from sops)") );
             return response()->json([
                 'success'=>true,
                 'data' => $data
@@ -181,7 +263,7 @@ class AdminController extends Controller
             $sopExists = Sop::where('sopfor', $request->sopfor)->first();
             if($sopExists === null){
                 $dB                     =   new Sop;
-                $dB->orgId              =   Auth::user()->id;
+                $dB->orgId              =   Auth::user()->org;
                 $dB->sopfor             =   $request->sopfor;
                 $dB->sop                =   $request->sop;
                 $dB-> save();
@@ -206,7 +288,7 @@ class AdminController extends Controller
 
     public function sopList(){
         if($this->checkAdminOrOrg()){
-            $data       = Sop::where('orgId', Auth::user()->id)->select('id', 'sopfor','sop', 'updated_at')->get()->map(function($i) {
+            $data       = Sop::where('orgId', Auth::user()->org)->select('id', 'sopfor','sop', 'updated_at')->get()->map(function($i) {
                 $order = $this->getOrder($i->sopfor);
                 $i['order']          =   $order;
                 $i['sopForName']     =   $order[0];
@@ -233,8 +315,13 @@ class AdminController extends Controller
 // Common for Admin and Org
 
 // For APP
+    // public function orgList(){
+    //     $data   = User::where('status', 1)->where('role', 'Org')->select('org', 'id')->get();
+    //     return response()->json([ 'data' => $data ]); 
+    // }
+
     public function orgList(){
-        $data   = User::where('status', 1)->where('role', 'Org')->select('org', 'id')->get();
+        $data   = Org::where('status', 1)->select('id','name as org')->get();
         return response()->json([ 'data' => $data ]); 
     }
 
@@ -256,125 +343,5 @@ class AdminController extends Controller
         return $data;
     }
 
-// For APP
-
-
-
-
-
-
-    // public function adminBasic(){
-    //     $dept       = Basic::where('type','dept')->select('id as deptId','type','tab1 as department','updated_at')->get();
-    //     $process    = Basic::where('type','process')->select('id as processId','type','tab1 as deptId','tab2 as process','updated_at')->get()->map(function($i) {
-    //         $dept      = Basic::where('id', $i->deptId)->select('id as deptId','type','tab1 as department')->first();
-    //         $i['dept']          =   $dept;
-    //         $i['department']    =   $dept->department;
-    //         return $i;
-    //     });
-    //     $subprocess    = Basic::where('type','subprocess')->select('id as subprocessId','type','tab1 as deptId','tab2 as processId','tab3 as subprocess','updated_at')->get()->map(function($i) {
-    //         $dept      = Basic::where('id', $i->deptId)->select('id as deptId','type','tab1 as department')->first();
-    //         $process      = Basic::where('id', $i->processId)->select('id as processId','type','tab2 as process')->first();
-    //         $i['dept']          =   $dept;
-    //         $i['department']    =   $dept->department;
-    //         $i['process']       =   $process;
-    //         $i['processName']   =   $process->process;
-    //         return $i;
-    //     });
-    //     $superprocess = Basic::where('type', 'superprocess')->select('id as superprocessId','type','tab1 as deptId','tab2 as processId','tab3 as subOrSuperId','tab4 as superprocess','updated_at')->get()->map(function($i) {
-    //         $dept           = Basic::where('id', $i->deptId)->select('id as deptId','type','tab1 as department')->first();
-    //         $process        = Basic::where('id', $i->processId)->select('id as processId','type','tab2 as process')->first();
-    //         $subOrSuper     = Basic::where('id', $i->subOrSuperId)->select('id as yy','type','tab2 as process')->get()->map(function($j) {
-    //             $q          = Basic::where('id', $j->yy)->select('id as xx','type','tab3 as subOrSuper', 'tab4 as superprocess')->first();
-    //             $j['finalSuper']       =   $q;
-    //             return $j;
-    //         });
-    //         $i['dept']          =   $dept;
-    //         $i['department']    =   $dept->department;
-    //         $i['process']       =   $process;
-    //         $i['processName']   =   $process->process;
-    //         $i['subOrSuper']    =   $subOrSuper[0];
-    //         return $i;
-    //     });
-    //     return response()->json([
-    //         'dept'              =>  $dept,
-    //         'process'           =>  $process,
-    //         'subprocess'        =>  $subprocess,
-    //         'superprocess'      =>  $superprocess
-    //     ]); 
-    // }
-
-    
-
-    // private function fetchSop($id){
-    //     $data = Sop::where('sopfor', $id )->select('sop as sopData','updated_at as sopUpdatedAt')->first();
-    //     return $data;
-    // }
-
-    // public function getSopDetails($type, $id){
-    //     if($type === 'dept'){
-    //         $basic  =   Basic::where('id', $id)->select('id as deptId','type','tab1 as department', 'updated_at as basicTime')->get()->map(function($i) {
-    //             $sop                   =   $this->fetchSop($i->deptId);
-    //             $i['sop']              =   $sop;
-    //             return $i;
-    //         });
-    //         $data   =   Basic::where('tab1', $id)->where('type', 'process')->select('id as processId','type','tab2 as process')->get();
-    //     }
-
-    //     return response()->json([
-    //         'data'          =>  $data,
-    //         'basic'         =>  $basic[0],
-    //     ]); 
-    // }
-
-    // public function fetchDepartment($id){
-    //     $data  =   Basic::where('id', $id)->select('id as deptId','type','tab1 as department', 'updated_at as basicTime')->get()->map(function($i) {
-    //         $sop                   =   $this->fetchSop($i->deptId);
-    //         $process               =   Basic::where('tab1', $i->deptId)->where('type', 'process')->select('id as processId','type','tab2 as process')->get();
-    //         $i['sop']              =   $sop;
-    //         $i['process']          =   $process;
-    //         return $i;
-    //     });
-    //     return response()->json([ 
-    //         'data' =>  $data[0] 
-    //     ]); 
-    // }
-
-    // public function fetchProcess($id){
-    //     $data  =   Basic::where('id', $id)->select('id as processId','type','tab1', 'tab2 as process', 'updated_at as basicTime')->get()->map(function($i) {
-    //         $dept  =   Basic::where('id', $i->tab1)->select('id as deptId','type','tab1 as dept')->first();
-    //         $sop                   =   $this->fetchSop($i->processId);
-    //         $subprocess            =   Basic::where('tab2', $i->processId)->where('type', 'subprocess')->select('id as subprocessId','type','tab3 as subprocess')->get();
-    //         $i['sop']              =   $sop;
-    //         $i['subprocess']       =   $subprocess;
-    //         return $i;
-    //     });
-    //     return response()->json([ 
-    //         'data' =>  $data[0] 
-    //     ]); 
-    // }
-
-    // public function fetchSubProcess($id){
-    //     $data  =   Basic::where('id', $id)->select('id as subprocessId','type','tab1', 'tab3 as subprocess', 'updated_at as basicTime')->get()->map(function($i) {
-    //         $dept       =   Basic::where('id', $i->tab1)->select('id as deptId','type','tab1 as dept')->first();
-    //         $process    =   Basic::where('id', $i->subprocessId)->select('id as processId','type','tab2 as process')->first();
-    //         $sop                     =   $this->fetchSop($i->subprocessId);
-    //         // if(count($sop)){ 
-    //         //     $finalsop = $sop[0];
-    //         // }else{
-    //         //     $finalsop = null;
-    //         // }
-    //         $superprocess            =   Basic::where('tab3', $i->subprocessId)->where('type', 'superprocess')->select('id as superprocessId','type','tab4 as superprocess')->get();
-    //         $i['dept']               =   $dept;
-    //         $i['process']            =   $process;
-    //         $i['sop']                =   $sop;
-    //         $i['superprocess']       =   $superprocess;
-    //         return $i;
-    //     });
-    //     return response()->json([ 
-    //         'data' =>  $data[0]
-    //     ]); 
-    // }
-
-
-    
+// For APP    
 }

@@ -49,7 +49,7 @@ class AuthController extends Controller
         ];
         $existing = User::where('role', '=', 'Org')->where('email', $request->email )->first();
         if (!is_null($existing)) {
-            $response = ['success'=>false, 'message'=>'Organisation already registered'];
+            $response = ['success'=>false, 'message'=>'Email already registered'];
             return response()->json($response, 201);
         }
 
@@ -69,15 +69,10 @@ class AuthController extends Controller
         if ($user->save())
         {
             $user = \App\Models\User::where('email', $request->email)->first();
-            // $tokenResult = $user->createToken('authToken')->plainTextToken;
             $user->save();
-            $response = ['data' => new UserResource($user)];
             $response = [
                 'success'       =>  true,
                 'message'       =>  'Registration succesful',
-                // 'access_token'  =>  $tokenResult,
-                // 'token_type'    =>  'Bearer',
-                // 'data'          =>  $user
             ];
             return response()->json($response, 201);
         }
@@ -113,12 +108,15 @@ class AuthController extends Controller
                     ]);
                 }
                 $user = User::where('email', $request->email)->first();
+
                 if ( ! Hash::check($request->password, $user->password, [])) {
                     throw new \Exception('Error in Login');
                 }
                 if($user->role === 'Admin'){ $tokenResult = $user->createToken('authToken', ['Admin'])->plainTextToken; }else
                 if($user->role === 'Org'){ $tokenResult = $user->createToken('authToken', ['Org'])->plainTextToken; }else
                 if($user->role === 'User'){ $tokenResult = $user->createToken('authToken', ['User'])->plainTextToken; }
+
+                $user->token = $tokenResult;           
                 return response()->json([
                     'success'           => true,
                     'status_code'       => 200,
