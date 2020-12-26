@@ -33,7 +33,7 @@ class Register extends Component {
                 data:                  res.data.data,
                 loading:                false,
             })
-            if(!res.data.data.length){ this.setState({ org: 'dummy' }) }
+            if(!res.data.data.length){ this.setState({ org: 0 }) }
         })
     }
 
@@ -43,7 +43,7 @@ class Register extends Component {
             this.callSwal('Passwords Do Not Match')
         }else{
             const data={
-                org:                        parseInt( this.state.org ), 
+                org:                        parseInt( this.state.org ),
                 name:                       this.state.name, 
                 email:                      this.state.email,
                 role:                       'User',

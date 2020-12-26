@@ -84,13 +84,6 @@ class AuthController extends Controller
                     'email'             => 'email|required',
                     'password'          => 'required'
                 ]);
-                if(!(User::where('email', $request->email)->where('status', 1)->exists())){
-                    return response()->json([
-                        'success'       =>  false,
-                        'message'       =>  "You have not been approved yet.",
-                        'access_token'  =>  null
-                    ]);
-                }
                 if(!(User::where('email', $request->email)->exists())){
                     return response()->json([
                         'success'       =>  false, 
@@ -103,15 +96,23 @@ class AuthController extends Controller
                     return response()->json([
                         'success'       => false,
                         'status_code'   => 500,
-                        'message'       => 'You are not Authorised',
+                        'message'       => 'Wrong Credentials',
                         'access_token'  =>  null
                     ]);
                 }
                 $user = User::where('email', $request->email)->first();
-
                 if ( ! Hash::check($request->password, $user->password, [])) {
                     throw new \Exception('Error in Login');
                 }
+
+                if(!(User::where('email', $request->email)->where('status', 1)->exists())){
+                    return response()->json([
+                        'success'       =>  false,
+                        'message'       =>  "You have not been approved yet.",
+                        'access_token'  =>  null
+                    ]);
+                }
+                
                 if($user->role === 'Admin'){ $tokenResult = $user->createToken('authToken', ['Admin'])->plainTextToken; }else
                 if($user->role === 'Org'){ $tokenResult = $user->createToken('authToken', ['Org'])->plainTextToken; }else
                 if($user->role === 'User'){ $tokenResult = $user->createToken('authToken', ['User'])->plainTextToken; }

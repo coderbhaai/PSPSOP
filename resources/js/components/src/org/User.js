@@ -22,6 +22,7 @@ export class User extends Component {
         const token = JSON.parse(localStorage.getItem('access_token'))
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
         axios.get('/api/userUsers').then(res =>{
+            console.log('res.data', res.data)
             this.setState({ 
                 users:              res.data.data,
                 loading:            false 
@@ -39,12 +40,15 @@ export class User extends Component {
         if(value == 1){ var status = 0 }else{ var status = 1}
         const data={
             id:                         id,
-            status:                     status
-        }               
+            status:                     parseInt(status)
+        }
+        const token = JSON.parse(localStorage.getItem('access_token'))
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`           
         axios.post('/api/changeUserStatus', data)
         .then( res=>{
+            console.log('res.data', res.data)
             if(res.data.success){
-                this.setState({ users: this.state.users.map(x => x.id === parseInt(res.data.data.id) ? x= res.data.data :x ) })
+                this.setState({ users: this.state.users.map(x => x.id == res.data.data.id ? x= res.data.data :x ) })
             }
             this.callSwal(res.data.message)
         })
@@ -52,6 +56,7 @@ export class User extends Component {
     }
 
     render() {
+        console.log('this.state', this.state)
         const {currentPage, itemsPerPage } = this.state
         const indexOfLastItem = currentPage * itemsPerPage
         const indexOfFirstItem = indexOfLastItem - itemsPerPage

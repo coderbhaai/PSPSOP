@@ -48,8 +48,9 @@ export class User extends Component {
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
         axios.post('/api/makeOrgAdmin', data)
         .then( res=>{
+            console.log('res.data', res.data)
             if(res.data.success){
-                this.setState({ users: this.state.users.map(x => x.id === parseInt(res.data.data.id) ? x= res.data.data :x ) })
+                this.setState({ users: this.state.users.map(x => x.id == res.data.data.id ? x= res.data.data :x ) })
             }
             this.callSwal(res.data.message)
         })
@@ -60,13 +61,13 @@ export class User extends Component {
         if(value == 1){ var status = 0 }else{ var status = 1}
         const data={
             id:                         id,
-            status:                     status
+            status:                     parseInt(status)
         }               
         axios.post('/api/changeUserStatusByAdmin', data)
         .then( res=>{
             console.log('res.data', res.data)
             if(res.data.success){
-                this.setState({ users: this.state.users.map(x => x.id === parseInt(res.data.data.id) ? x= res.data.data :x ) })
+                this.setState({ users: this.state.users.map(x => x.id == res.data.data.id ? x= res.data.data :x ) })
             }
             this.callSwal(res.data.message)
         })
