@@ -315,11 +315,6 @@ class AdminController extends Controller
 // Common for Admin and Org
 
 // For APP
-    // public function orgList(){
-    //     $data   = User::where('status', 1)->where('role', 'Org')->select('org', 'id')->get();
-    //     return response()->json([ 'data' => $data ]); 
-    // }
-
     public function orgList(){
         $data   = Org::where('status', 1)->select('id','name as org')->get();
         return response()->json([ 'data' => $data ]); 
@@ -334,6 +329,7 @@ class AdminController extends Controller
 
     public function sop($id){
         $data =         DB::table('basics')->where('orgId', Auth::user()->org)->where('id', $id)->select('name', 'id')->get()->map(function($i) {
+            $i->id             =   (int)$i->id;
             $child = Basic::where('orgId', Auth::user()->org)->where('head', $i->id)->where('status', 1)->select('name', 'id')->get();
             $xx = Sop::where('orgId', Auth::user()->org)->where('sopfor', $i->id)->select('sop', 'updated_at')->first();
             $i->sop          =   $xx;

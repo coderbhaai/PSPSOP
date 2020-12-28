@@ -100,8 +100,13 @@ class AuthController extends Controller
                         'access_token'  =>  null
                     ]);
                 }
-                $user = User::where('email', $request->email)->first();
-                if ( ! Hash::check($request->password, $user->password, [])) {
+                // $user = User::where('email', $request->email)->first();
+                $user = User::where('email', $request->email)->get()->map(function($i) {
+                    $i->org             =   (int)$i->org;
+                    $i->status          =   (int)$i->status;
+                    return $i;
+                });
+                if ( ! Hash::check($request->password, $user[0]->password, [])) {
                     throw new \Exception('Error in Login');
                 }
 
@@ -113,18 +118,18 @@ class AuthController extends Controller
                     ]);
                 }
                 
-                if($user->role === 'Admin'){ $tokenResult = $user->createToken('authToken', ['Admin'])->plainTextToken; }else
-                if($user->role === 'Org'){ $tokenResult = $user->createToken('authToken', ['Org'])->plainTextToken; }else
-                if($user->role === 'User'){ $tokenResult = $user->createToken('authToken', ['User'])->plainTextToken; }
+                if($user[0]->role === 'Admin'){ $tokenResult = $user[0]->createToken('authToken', ['Admin'])->plainTextToken; }else
+                if($user[0]->role === 'Org'){ $tokenResult = $user[0]->createToken('authToken', ['Org'])->plainTextToken; }else
+                if($user[0]->role === 'User'){ $tokenResult = $user[0]->createToken('authToken', ['User'])->plainTextToken; }
 
-                $user->token = $tokenResult;           
+                $user[0]->token = $tokenResult;
                 return response()->json([
                     'success'           => true,
                     'status_code'       => 200,
                     'access_token'      => $tokenResult,
                     'token_type'        => 'Bearer',
                     'message'           => 'Welcome Aboard',
-                    'data'              =>  $user
+                    'data'              =>  $user[0]
                 ]);
             } 
         catch (Exception $error) {

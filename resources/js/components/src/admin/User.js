@@ -79,7 +79,8 @@ export class User extends Component {
         const {currentPage, itemsPerPage } = this.state
         const indexOfLastItem = currentPage * itemsPerPage
         const indexOfFirstItem = indexOfLastItem - itemsPerPage
-        const renderItems =  this.state.users.filter((i)=>{ if(this.state.search == null) return i; else if(i.org.toLowerCase().includes(this.state.search.toLowerCase()) || i.name.toLowerCase().includes(this.state.search.toLowerCase()) || i.role.toLowerCase().includes(this.state.search.toLowerCase()) ){ return i }}).slice(indexOfFirstItem, indexOfLastItem).map((i, index) => {
+        const renderItems =  this.state.users.filter((i)=>{ if(this.state.search == null) return i; else if( 
+            i.orgName!==null ? i.orgName.toLowerCase().includes(this.state.search.toLowerCase()) : null || i.name.toLowerCase().includes(this.state.search.toLowerCase()) || i.role.toLowerCase().includes(this.state.search.toLowerCase()) ){ return i }}).slice(indexOfFirstItem, indexOfLastItem).map((i, index) => {
             return (
                 <tr key={index}>
                     <td>{index +1}</td>
