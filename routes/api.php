@@ -34,6 +34,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/createBasic', [AdminController::class, 'createBasic']);
         Route::post('/updateBasic', [AdminController::class, 'updateBasic']);
         Route::post('/changeBasicStatus', [AdminController::class, 'changeBasicStatus']);
+        Route::post('/uploadSop', [AdminController::class, 'uploadSop']);
+        Route::post('/updateSopFile', [AdminController::class, 'updateSopFile']);
         
         Route::get('/sopBasic', [AdminController::class, 'sopBasic']);
         Route::get('/fetchOrder/{id}', [AdminController::class, 'fetchOrder']);

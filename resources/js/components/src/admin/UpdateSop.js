@@ -18,7 +18,7 @@ export class UpdateSop extends Component {
 		this.onEditorChange1 = this.onEditorChange1.bind( this )
     }
 
-    componentDidMount(){ window.scrollTo(0, 0)  }
+    componentDidMount(){ window.scrollTo(0, 0) }
     getSop=()=>{
         if(this.state.loading){
             const url = window.location.href.split("/").pop();

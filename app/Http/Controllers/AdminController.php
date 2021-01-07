@@ -9,6 +9,7 @@ use App\Models\Org;
 use App\Models\User;
 use App\Models\Basic;
 use App\Models\Sop;
+use App\Models\SopList;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -18,23 +19,13 @@ class AdminController extends Controller
     private function checkAdminOrOrg(){ if (Auth::user()->tokenCan('Admin') || Auth::user()->tokenCan('Org') ) { return true; }else{ return false; } }
 
     private function getBasic($id){
-        $data       = Basic::where('id', $id)->select('id', 'step','head', 'name','status', 'updated_at')->get()->map(function($i) {
+        $data       = Basic::where('id', $id)->select('id', 'step','head','dept', 'name','status', 'updated_at')->get()->map(function($i) {
             if($i->step===0){ $order = [$i->name]; }else{ $order = $this->getOrder($i->id); }
             $i['order']          =   $order;
             return $i;
         });
         return $data[0];
     }
-
-    // private function getUser($id){
-    //     $data        =   DB::table('users')
-    //                     ->where('users.id', $id)
-    //                     ->leftJoin('orgs', 'orgs.id', '=', 'users.org')
-    //                     ->select([ 'users.id', 'users.name','users.email', 'users.role', 'users.org','users.status as userStatus','users.updated_at', 'orgs.name as orgName', 'orgs.email as orgEmail', 'orgs.status as orgStatus' ])
-    //                     ->get();
-
-    //     return $data[0];
-    // }
 
     public function adminSop($id){
         $sop = Sop::where('userId', $id )->select('id','userId','sopfor','updated_at')->get()->map(function($i) {
@@ -169,11 +160,18 @@ class AdminController extends Controller
 
     public function userBasic(){
         if($this->checkAdminOrOrg()){
-            $data       = Basic::where('orgId', Auth::user()->org)->select('id', 'step','head', 'name','status', 'updated_at')->get()->map(function($i) {
-                if($i->step===0){ $order = [$i->name]; }else{ $order = $this->getOrder($i->id); }
-                $i['order']          =   $order;
-                return $i;
-            });
+            // $data       = Basic::where('orgId', Auth::user()->org)->select('id', 'step', 'head', 'dept', 'name', 'status', 'updated_at')->get()->map(function($i) {
+            //     if($i->step===0){ $order = [$i->name]; }else{ $order = $this->getOrder($i->id); }
+            //     $i['order']          =   $order;
+            //     return $i;
+            // });
+
+            $data =         DB::table('basics')
+                            ->leftJoin('sop_lists', 'sop_lists.sopfor', '=', 'basics.id')
+                            ->where('basics.orgId', Auth::user()->org)
+                            ->select([ 'basics.id', 'basics.step', 'basics.dept', 'basics.head', 'basics.name', 'basics.status', 'basics.updated_at', 'sop_lists.sopfor', 'sop_lists.sop' ])
+                            ->get();
+
             return response()->json([
                 'success'=>true,
                 'data' => $data
@@ -204,6 +202,7 @@ class AdminController extends Controller
             $dB                      =   new Basic;
             $dB->orgId               =   Auth::user()->org;
             $dB->step                =   $request->step;
+            $dB->dept                =   $request->dept;
             $dB->head                =   $request->head;
             $dB->name                =   $request->name;
             $dB->status              =   $request->status;
@@ -310,6 +309,52 @@ class AdminController extends Controller
             $response = [ 'success'=>true, 'data'=>$data[0],]; 
         }else{ $response = [ 'success'=>false,  'message'=>'You are not Authorised']; }
         return response()->json($response, 201);
+    }
+
+    public function uploadSop(Request $request){
+        if($this->checkAdminOrOrg()){
+            $dB                     =   new SopList;
+            $dB->orgId              =   Auth::user()->org;
+            $dB->sopfor             =   $request->sopfor;
+            if ($request->file !== 'null') {
+                $fileName = time() . '.' . request()->file->getClientOriginalExtension();
+                request()->file->move(storage_path('app/public/sop/'), $fileName);
+                $dB->sop = $fileName;
+            }
+            $dB-> save();
+            
+            $data =         DB::table('basics')
+                                ->leftJoin('sop_lists', 'sop_lists.sopfor', '=', 'basics.id')
+                                ->where( 'sop_lists.id', $dB->id )
+                                ->select([ 'basics.id', 'basics.step', 'basics.dept', 'basics.head', 'basics.name', 'basics.status', 'basics.updated_at', 'sop_lists.sopfor', 'sop_lists.sop' ])
+                                ->first();
+
+            $response = ['success'=>true, 'data'=>$data, 'message' => "SOP created succesfully"];
+        }else{ $response = [ 'success'=>false,  'message'=>'You are not Authorised']; }
+        return response()->json($response, 201);
+    }
+
+    public function updateSopFile(Request $request){
+        if($this->checkAdminOrOrg()){
+            $dB                     =   SopList::where('sopfor', $request->sopfor)->first();
+            if ($request->file !== 'null') {
+                $fileName = time() . '.' . request()->file->getClientOriginalExtension();
+                request()->file->move(storage_path('app/public/sop/'), $fileName);
+                if(!is_null( $dB->sop)){
+                    $deleteImage = public_path("storage/sop/{$dB->sop}");        
+                    if (isset($deleteImage)) { file::delete($deleteImage); }
+                }
+                $dB->sop = $fileName;
+                $data =         DB::table('basics')
+                                ->leftJoin('sop_lists', 'sop_lists.sopfor', '=', 'basics.id')
+                                ->where( 'sop_lists.sopfor', $request->sopfor )
+                                ->select([ 'basics.id', 'basics.step', 'basics.dept', 'basics.head', 'basics.name', 'basics.status', 'basics.updated_at', 'sop_lists.sopfor', 'sop_lists.sop' ])
+                                ->first();
+            $dB-> save();
+            $response = ['success'=>true, 'data'=>$data, 'message' => "SOP created succesfully"];
+            }else{ $response = [ 'success'=>false,  'message'=>'You are not Authorised']; }
+            return response()->json($response, 201);
+        }
     }
 
 // Common for Admin and Org

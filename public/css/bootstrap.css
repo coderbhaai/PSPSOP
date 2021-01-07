@@ -4943,7 +4943,7 @@ input[type="button"].btn-block {
 }
 
 .accordion > .card:not(:last-of-type) {
-  border-bottom: 0;
+  /* border-bottom: 0; */
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
 }
