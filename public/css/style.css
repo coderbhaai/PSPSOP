@@ -1672,6 +1672,10 @@ img.plusBtn {
   margin: 0 10px;
 }
 
+img.plusBtn:hover {
+  cursor: pointer;
+}
+
 .card-header h2 {
   display: -webkit-box;
   display: -ms-flexbox;

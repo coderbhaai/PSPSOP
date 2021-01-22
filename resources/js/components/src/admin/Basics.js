@@ -103,7 +103,7 @@ export class Basics extends Component {
         console.log('i', i)
         this.setState({ 
             editmodalIsOpen:            true,
-            step:                       i.step+1,
+            step:                       parseInt(i.step)+1,
             head:                       i.id,
             dept:                       i.dept
         })
@@ -275,13 +275,13 @@ export class Basics extends Component {
                                                                                                             { this.state.data.filter((el)=>{ if( el.step == 4 && el.head == l.id ) return i; }).map((m,index)=>( 
                                                                                                                 <div className="card" key={index}>
                                                                                                                     <div className="card-header" id={"heading4-"+k.id}>
-                                                                                                                        <h2 className="mb-0"><button className="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target={"#step4"+m.id} aria-expanded="true" aria-controls={"step4"+m.id}>xx ......{m.name}</button></h2>
+                                                                                                                        <h2 className="mb-0"><button className="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target={"#step4"+m.id} aria-expanded="true" aria-controls={"step4"+m.id}>{m.name}</button></h2>
                                                                                                                     </div>
                                                                                                                     <div id={"step4"+m.id} className="collapse" aria-labelledby={"heading4-"+m.id} data-parent="#accordionExample5">
                                                                                                                         <div className="card-body">
                                                                                                                             { m.sop != null ? 
                                                                                                                                 <>
-                                                                                                                                    <a target="_blank" href={"/storage/sop/"+m.sop}><button className="amitBtn" style={{marginRight: '1em'}}>Download SOP</button></a>
+                                                                                                                                    <a target="_blank" href={"/psp/storage/app/public/sop/"+m.sop}><button className="amitBtn" style={{marginRight: '1em'}}>Download SOP</button></a>
                                                                                                                                     <button onClick={()=>this.updateFile(m)} className="amitBtn">Update SOP</button>
                                                                                                                                 </>
                                                                                                                                 : 

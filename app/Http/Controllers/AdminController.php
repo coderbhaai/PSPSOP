@@ -173,7 +173,7 @@ class AdminController extends Controller
                             ->get();
 
             return response()->json([
-                'success'=>true,
+                'success'=>true, 
                 'data' => $data
             ]);
         }
