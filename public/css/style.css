@@ -29,11 +29,14 @@ a:hover, button:focus, button:hover, .btn-link:focus, .btn-link.focus {
 }
 
 .navbar {
-  background: #004260;
+  background: #fff;
+  -webkit-box-shadow: 0 8px 6px -6px #999;
+          box-shadow: 0 8px 6px -6px #999;
 }
 
 .nav-link, .nav-link:hover {
-  color: #fff;
+  color: #004260;
+  font-weight: 600;
   padding: 1rem 0.5rem;
 }
 
@@ -1686,5 +1689,30 @@ img.plusBtn:hover {
   -webkit-box-pack: justify;
       -ms-flex-pack: justify;
           justify-content: space-between;
+}
+
+.subscribe {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -ms-flex-pack: distribute;
+      justify-content: space-around;
+  padding: 3em 0;
+}
+
+.subscribe form {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.subscribe form > div:not(.my-div) {
+  min-width: 350px;
 }
 /*# sourceMappingURL=style.css.map */

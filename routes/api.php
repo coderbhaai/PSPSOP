@@ -11,6 +11,7 @@ Route::post('/forgotPassword', 'App\Http\Controllers\AuthController@forgotPasswo
 Route::post('/resetPassword', 'App\Http\Controllers\AuthController@resetPassword');
 Route::post('/appForgotPassword', 'App\Http\Controllers\AuthController@appForgotPassword');
 Route::get('/orgList', 'App\Http\Controllers\AdminController@orgList');
+Route::post('/addSubscribe', 'App\Http\Controllers\AdminController@addSubscribe');
 
 Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);

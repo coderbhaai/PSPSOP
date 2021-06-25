@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import Swiper from 'react-id-swiper'
+import Subscribe from '../parts/Subscribe'
 
 export class Home extends Component {
     render() {
@@ -55,6 +56,7 @@ export class Home extends Component {
                         </div>
                     </Swiper>
                 </div>
+                <Subscribe/>
             </>
         )
     }

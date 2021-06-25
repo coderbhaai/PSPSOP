@@ -24,10 +24,12 @@ a:hover, button:focus,button:hover, .btn-link:focus, .btn-link.focus{
   text-decoration: none;
 }
 .navbar{
-    background: $blue;
+    background: #fff;
+    box-shadow: 0 8px 6px -6px #999;
 }
 .nav-link, .nav-link:hover{
-    color: #fff;
+    color: $blue;
+    font-weight: 600;
     padding: 1rem 0.5rem;
 }
 .logo{
@@ -1304,4 +1306,17 @@ img.plusBtn:hover{
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+.subscribe{
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 3em 0;
+  form{
+    display: flex;
+    align-items: center;
+    >div:not(.my-div){
+      min-width: 350px;
+      }
+    }
 }

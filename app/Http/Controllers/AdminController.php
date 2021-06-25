@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Basic;
 use App\Models\Sop;
 use App\Models\SopList;
+use App\Models\Subscribe;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -43,6 +44,15 @@ class AdminController extends Controller
         return response()->json([
             'data' => $sop
         ]); 
+    }
+
+    public function addSubscribe(Request $request){
+        $dB                      =   new Subscribe;
+        $dB->email               =   $request->email;
+        $dB->status              =   $request->status;
+        $dB-> save();
+        $response = ['success'=>true, 'message' => "Subscription succesfull"];
+        return response()->json($response, 201);
     }
 
 // Admin Functions
