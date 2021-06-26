@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import swal from 'sweetalert'
 
 export class Subscribe extends Component {
     constructor(props) {
@@ -9,6 +10,7 @@ export class Subscribe extends Component {
     }
     
     onChange= (e) => { this.setState({ [e.target.name]: e.target.value }) }
+    callSwal=(mesg)=>{ swal({ title: mesg, timer: 4000 }) }
     addSubscribe = (e) => {
         e.preventDefault()
         const data={
@@ -22,6 +24,7 @@ export class Subscribe extends Component {
             }
             this.callSwal(res.data.message)
         })
+
     }
 
     resetData=()=>{ this.setState({ email : '' }) }

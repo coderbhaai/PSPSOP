@@ -47,11 +47,16 @@ class AdminController extends Controller
     }
 
     public function addSubscribe(Request $request){
-        $dB                      =   new Subscribe;
-        $dB->email               =   $request->email;
-        $dB->status              =   $request->status;
-        $dB-> save();
-        $response = ['success'=>true, 'message' => "Subscription succesfull"];
+        $existing = Subscribe::where('email', $request->email )->first();
+        if (!is_null($existing)) {
+            $response = ['success'=>false, 'message'=>'Email already Subscribed'];
+        }else{
+            $dB                      =   new Subscribe;
+            $dB->email               =   $request->email;
+            $dB->status              =   $request->status;
+            $dB-> save();
+            $response = ['success'=>true, 'message' => "Subscription succesfull"];
+        }
         return response()->json($response, 201);
     }
 

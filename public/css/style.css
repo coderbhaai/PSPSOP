@@ -32,6 +32,7 @@ a:hover, button:focus, button:hover, .btn-link:focus, .btn-link.focus {
   background: #fff;
   -webkit-box-shadow: 0 8px 6px -6px #999;
           box-shadow: 0 8px 6px -6px #999;
+  z-index: 100;
 }
 
 .nav-link, .nav-link:hover {
