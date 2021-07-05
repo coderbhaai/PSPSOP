@@ -84,7 +84,11 @@ export class User extends Component {
             return (
                 <tr key={index}>
                     <td>{index +1}</td>
-                    <td>{i.orgName}<br/>{i.orgStatus==1? 'Approved': 'Not Approved'}</td>
+                    <td>
+                        { i.org!=0?
+                            <><p>{i.orgName}</p> <p>{i.orgStatus==1? 'Approved': 'Not Approved'}</p></>
+                        : 'Admin'}
+                    </td>
                     <td>{i.name}<br/>{i.email}</td>
                     <td>{i.role=='Org'? 'Org Admin' : i.role}</td>
                     <td>{moment(i.updated_at).format("DD MMMM  YYYY")}</td>
@@ -143,7 +147,7 @@ export class User extends Component {
                                     <td>User Status</td>
                                 </tr>
                                 </thead>
-                                <tbody>{this.state.loading? <tr className="loading"><td colSpan="7" className="text-center"><img src="/images/icons/loading.gif"/></td></tr> : renderItems}</tbody>
+                                <tbody>{this.state.loading? <tr className="loading"><td colSpan="7" className="text-center"><img src="/images/icons/loading.gif" className="loading"/></td></tr> : renderItems}</tbody>
                             </table>
                             <ul className="page-numbers">{renderPagination}</ul>
                         </div>

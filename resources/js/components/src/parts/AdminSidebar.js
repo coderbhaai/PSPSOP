@@ -24,8 +24,9 @@ export class AdminSidebar extends Component {
         const admin =[
             {text: 'Org', url: '/admin-org', active: '/admin-org'},
             {text: 'Users', url: '/admin-users', active: '/admin-users'},
-            {text: 'Basics', url: '/basics', active: '/basics'},
-            {text: 'SOPs', url: '/sopList', active: '/admin-sop'},
+            // {text: 'Subscription', url: '/admin-users', active: '/admin-subscription'},
+            // {text: 'Basics', url: '/basics', active: '/basics'},
+            // {text: 'SOPs', url: '/sopList', active: '/admin-sop'},
         ]
 
         const org =[

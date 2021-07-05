@@ -200,7 +200,7 @@ export class Org extends Component {
                         </div>
                         <table className="table table-hover table-responsive">
                             <thead><tr><td>Sl No.</td><td>Name</td><td>Email</td><td>Status</td><td>Edit Org</td></tr></thead>
-                            <tbody>{this.state.loading? <tr className="loading"><td colSpan="5" className="text-center"><img src="/images/icons/loading.gif"/></td></tr> : renderItems}</tbody>
+                            <tbody>{this.state.loading? <tr className="loading"><td colSpan="5" className="text-center"><img src="/images/icons/loading.gif" className="loading"/></td></tr> : renderItems}</tbody>
                         </table>
                     </div>
                 </div>

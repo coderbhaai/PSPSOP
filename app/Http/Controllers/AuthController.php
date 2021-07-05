@@ -108,7 +108,12 @@ class AuthController extends Controller
                     $i->status          =   (int)$i->status;
                     return $i;
                 });
-                $logo = Org::where('id', $user[0]->org)->select('logo')->first();
+                if($user[0]->org != 0){
+                    $xx = Org::where('id', $user[0]->org)->select('logo')->first();
+                    $logo = $xx->logo;
+                }else{
+                    $logo = null;
+                }
                 // $user =         DB::table('users')
                 //                 ->leftJoin('orgs', 'orgs.id', '=', 'users.org')
                 //                 ->where( 'users.email', $request->email )
@@ -152,7 +157,7 @@ class AuthController extends Controller
                     'token_type'        => 'Bearer',
                     'message'           => 'Welcome Aboard',
                     'data'              =>  $user[0],
-                    'logo'              =>  $logo->logo
+                    'logo'              =>  $logo
                 ]);
             } 
         catch (Exception $error) {
@@ -245,8 +250,11 @@ class AuthController extends Controller
     }
 
     public function logout(Request $request){
-        $request->user()->tokens()->delete();
-        $response = ['data' => 'Logout successful.'];
+        $request->user()->tokens()->where('id', $request->user()->currentAccessToken()->id)->delete();
+        $response = [
+            'success'           =>  true,
+            'message'           => 'Logout successful.'
+        ];
         return response()->json($response, 201);
     }
 }

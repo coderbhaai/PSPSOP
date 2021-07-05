@@ -1336,6 +1336,7 @@ img.plusBtn:hover{
 
 .swal-overlay{
   background: transparent;
+  pointer-events: none;
 }
 .swal-modal{
   position: absolute;
@@ -1372,4 +1373,7 @@ img.plusBtn:hover{
   padding: 1em;
   min-width: 200px;
   height: 60px;
+}
+img.loading{
+  max-width: 35px;
 }

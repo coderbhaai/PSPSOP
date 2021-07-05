@@ -95,7 +95,7 @@ export class About extends Component {
                 <div className="row">
                     <AdminSidebar/>
                         <div className="col-sm-10">
-                            {this.state.loading? <img src="/images/icons/loading.gif"/> : null }
+                            {this.state.loading? <img src="/images/icons/loading.gif" className="loading"/> : null }
                             {this.state.aboutExists?
                                 <>
                                     {!this.state.edit?

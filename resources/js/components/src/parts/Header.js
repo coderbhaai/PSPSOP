@@ -36,9 +36,10 @@ export class Header extends Component {
         const token = JSON.parse(localStorage.getItem('access_token'))
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
         axios.post('/api/logout').then( res=> {
-            localStorage.setItem('message', res.data.message)
+            console.log(`res.data.message`, res.data.message)
             localStorage.clear();
             this.setState({ user: [] })
+            localStorage.setItem('message', res.data.message)
             window.location.href = '/login'
         })
     }

@@ -85,7 +85,7 @@ export class Sop extends Component {
                                 <td>Update SOP</td>
                             </tr>
                             </thead>
-                            <tbody>{this.state.loading? <tr className="loading"><td colSpan="3" className="text-center"><img src="/images/icons/loading.gif"/></td></tr> : renderItems}</tbody>
+                            <tbody>{this.state.loading? <tr className="loading"><td colSpan="3" className="text-center"><img src="/images/icons/loading.gif" className="loading"/></td></tr> : renderItems}</tbody>
                         </table>
                         <ul className="page-numbers">{renderPagination}</ul>
                     </div>
