@@ -30,8 +30,11 @@ export class AdminSidebar extends Component {
 
         const org =[
             {text: 'Users', url: '/org-users', active: '/org-users'},
-            {text: 'Basics', url: '/basics', active: '/basics'},
-            {text: 'SOPs', url: '/sopList', active: '/org-sop'},
+            {text: 'Sops', url: '/basics', active: '/basics'},
+            // {text: 'SOPs', url: '/sopList', active: '/org-sop'},
+            {text: 'About', url: '/about', active: '/about'},
+            {text: 'Logo', url: '/logo', active: '/logo'},
+            {text: 'Subscription', url: '/subscription', active: '/subscription'},
         ]
         return (
             <div className="col-sm-2 sidebar">                                

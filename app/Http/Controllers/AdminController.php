@@ -11,6 +11,7 @@ use App\Models\Basic;
 use App\Models\Sop;
 use App\Models\SopList;
 use App\Models\Subscribe;
+use App\Models\Special;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -155,11 +156,27 @@ class AdminController extends Controller
     public function userUsers(){
         if($this->checkOrg()){
             $data = User::where('org', Auth::user()->org)->select('id','org','name','role','email','updated_at', 'status')->get();
-            return response()->json([
-                'success'=>true,
-                'data' => $data
-            ]);
+            $response = ['success'=>true, 'data' => $data ];
         }else{ $response = [ 'success'=>false,  'message'=>'You are not Authorised']; }
+
+        return response()->json($response, 201);
+    }
+
+    public function updateRole(Request $request){
+        if($this->checkAdminOrOrg()){
+            $existing = User::where('org', Auth::user()->org)->where('id', $request->id)->first();
+            if ($existing) {
+                $dB                     =   User::find($request->id);
+                $dB->role               =   $request->role;
+                $dB-> save();
+                $data = User::where('id', $request->id)->select('id','org','name','role','email','updated_at', 'status')->first();
+                $response = ['success'=>true, 'data' => $data, 'message'=>'Role Updated Succesfully'];
+            }else{
+                $response = ['success'=>false, 'message'=>'You are not authorised'];
+            }
+        }else{ $response = [ 'success'=>false,  'message'=>'You are not Authorised']; }
+
+        return response()->json($response, 201);
     }
 
     public function changeUserStatus(Request $request){
@@ -169,8 +186,9 @@ class AdminController extends Controller
             $dB-> save();
             $data = User::where('id', $request->id)->select('id','org','name','role','email','updated_at', 'status')->first();
             $response = ['success'=>true, 'data' => $data, 'message'=>'Status Updated Succesfully'];
-            return response()->json($response, 201);
         }else{ $response = [ 'success'=>false,  'message'=>'You are not Authorised']; }
+
+        return response()->json($response, 201);
     }
 
     public function userBasic(){
@@ -186,13 +204,86 @@ class AdminController extends Controller
                             ->where('basics.orgId', Auth::user()->org)
                             ->select([ 'basics.id', 'basics.step', 'basics.dept', 'basics.head', 'basics.name', 'basics.status', 'basics.updated_at', 'sop_lists.sopfor', 'sop_lists.sop' ])
                             ->get();
+            $response = [ 'success'=>true, 'data' => $data ];
+        }else{ $response = [ 'success'=>false,  'message'=>'You are not Authorised']; }
 
-            return response()->json([
-                'success'=>true, 
-                'data' => $data
-            ]);
-        }
+        return response()->json($response, 201);
     }
+
+    public function orgAbout(){
+        if($this->checkOrg()){
+            $data = Special::where('orgId', Auth::user()->org)->select('id', 'about', 'updated_at')->get();
+            $response = [ 'success'=>true, 'data' => $data ];
+        }else{ $response = [ 'success'=>false,  'message'=>'You are not Authorised']; }
+        
+        return response()->json($response, 201);
+    }
+
+    public function createAbout(Request $request){
+        if($this->checkOrg()){
+            $existing = Special::where('orgId', Auth::user()->org)->first();
+            if (!is_null($existing)) {
+                $response = ['success'=>false, 'message'=>'About already added'];
+            }else{
+                $dB                      =   new Special;
+                $dB->orgId               =   Auth::user()->org;
+                $dB->about               =   $request->about;
+                $dB-> save();
+            }
+            $data = Special::where('orgId', Auth::user()->org)->limit(1)->orderBy('id', 'desc')->select('id', 'about', 'updated_at')->first();
+            $response = [ 'success'=>true, 'data' => $data, 'message' => 'About added succesfully' ];
+        }else{ $response = [ 'success'=>false,  'message'=>'You are not Authorised']; }
+
+        return response()->json($response, 201);
+    }
+
+    public function updateAbout(Request $request){
+        if($this->checkOrg()){
+            $dB                      =   Special::find($request->id);
+            $dB->about               =   $request->about;
+            $dB-> save();
+            $data = Special::where('orgId', Auth::user()->org)->limit(1)->orderBy('id', 'desc')->select('id', 'about', 'updated_at')->first();
+            $response = [ 'success'=>true, 'data' => $data, 'message' => 'About updated succesfully' ];
+        }else{ $response = [ 'success'=>false,  'message'=>'You are not Authorised']; }
+
+        return response()->json($response, 201);
+    }
+
+    public function orgLogo(){
+        if($this->checkOrg()){
+            $data = Org::where('id', Auth::user()->org)->select('id', 'logo', 'updated_at')->first();
+            $response = [ 'success'=>true, 'data' => $data ];
+        }else{ $response = [ 'success'=>false,  'message'=>'You are not Authorised']; }
+        
+        return response()->json($response, 201);
+    }
+
+    public function updateLogo(Request $request){
+        if($this->checkOrg()){
+            $dB                     =   Org::where('id', Auth::user()->org )->first();
+            if ($request->file !== 'null') {
+                //dd($request->file->getClientOriginalExtension());
+                $fileName = time() . '.' . request()->file->getClientOriginalExtension();
+                request()->file->move(storage_path('app/public/logo/'), $fileName);
+                if(!is_null( $request->oldLogo)){
+                    $deleteImage = public_path("storage/logo/{$request->oldLogo}");        
+                    if (isset($deleteImage)) { file::delete($deleteImage); }
+                }
+                $dB->logo = $fileName;
+            }else{
+                dd('222');
+            }
+            $dB-> save();
+            $data = Org::where('id', Auth::user()->org)->select('id', 'logo', 'updated_at')->first();
+            $response = ['success'=>true, 'data'=>$data, 'message' => "Logo updated succesfully"];
+        }else{ $response = [ 'success'=>false,  'message'=>'You are not Authorised']; }
+
+        return response()->json($response, 201);
+    }
+
+
+
+
 // Org Functions
 
 // Common for Admin and Org
@@ -360,13 +451,13 @@ class AdminController extends Controller
                     if (isset($deleteImage)) { file::delete($deleteImage); }
                 }
                 $dB->sop = $fileName;
+                $dB-> save();
                 $data =         DB::table('basics')
                                 ->leftJoin('sop_lists', 'sop_lists.sopfor', '=', 'basics.id')
                                 ->where( 'sop_lists.sopfor', $request->sopfor )
                                 ->select([ 'basics.id', 'basics.step', 'basics.dept', 'basics.head', 'basics.name', 'basics.status', 'basics.updated_at', 'sop_lists.sopfor', 'sop_lists.sop' ])
                                 ->first();
-            $dB-> save();
-            $response = ['success'=>true, 'data'=>$data, 'message' => "SOP created succesfully"];
+            $response = ['success'=>true, 'data'=>$data, 'message' => "SOP updated succesfully"];
             }else{ $response = [ 'success'=>false,  'message'=>'You are not Authorised']; }
             return response()->json($response, 201);
         }

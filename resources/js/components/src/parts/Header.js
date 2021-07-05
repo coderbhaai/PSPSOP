@@ -1,21 +1,28 @@
 import React, { Component } from 'react'
+const func = require('./functions')
 
 export class Header extends Component {
     constructor(props) {
         super(props)
     
         this.state = {
-            user:              []
+            user:               [],
+            logo:               ''
         }
     }
 
     componentDidMount(){
-        if(typeof(Storage) !== "undefined"){ this.setState({ user: JSON.parse(localStorage.getItem('user')) || [] }) }
+        if(typeof(Storage) !== "undefined"){ 
+            this.setState({ 
+                user: JSON.parse(localStorage.getItem('user')) || [],
+                logo: JSON.parse(localStorage.getItem('logo')) || '' 
+            }) 
+        }
         if(typeof(Storage) !== "undefined" && localStorage.getItem('message') ){ 
             swal({ title:     localStorage.getItem('message'), 
             timer:     4000 
         })
-            setTimeout(function() { localStorage.removeItem('message') }, 5000)
+            setTimeout(function() { localStorage.removeItem('message') }, 4000)
         }
     }
 
@@ -40,12 +47,13 @@ export class Header extends Component {
     callSwal=(mesg)=>{ swal({ title: mesg, timer: 4000 }) }
     toSentenceCase=(str)=>{ return str.replace( /\w\S*/g, function(txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase() } ) }
 
-
-
     render() {
+        console.log(`this.state`, this.state)
         return (
             <nav className="navbar navbar-expand-lg">
-                <a href="/"><img src="/images/logo.svg" className="logo" alt="Logo"/></a>
+                <a href="/">
+                    <img src={this.state.logo? func.imgPath+'logo/'+this.state.logo : "/images/logo.svg"} className="logo" alt="Logo"/>
+                </a>
                 <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span className="navbar-toggler-icon"></span></button>
                 <div className="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul className="navbar-nav ml-auto">

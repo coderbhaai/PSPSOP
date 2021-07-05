@@ -4,7 +4,7 @@ import swal from 'sweetalert'
 import AdminSidebar from '../parts/AdminSidebar'
 import { Modal } from 'reactstrap'
 import moment from "moment"
-
+const func = require('../parts/functions')
 
 export class Basics extends Component {
     constructor(props) {
@@ -74,7 +74,6 @@ export class Basics extends Component {
     }
 
     uploadFile=(i)=>{
-        console.log('i', i)
         this.setState({ 
             uploadSopModel:         true,
             sopfor:                 i.id
@@ -82,7 +81,6 @@ export class Basics extends Component {
     }
 
     updateFile=(i)=>{
-        console.log('i', i)
         this.setState({ 
             updateSopModel:         true,
             sopfor:                 i.id,
@@ -160,6 +158,7 @@ export class Basics extends Component {
         }
         axios.post('/api/updateBasic', data)
         .then( res=> {
+            console.log(`res.data`, res.data)
             if(res.data.success){
                 this.setState({ data: this.state.data.map(x => x.id === res.data.data.id ? x= res.data.data : x ) })
                 this.resetData()
@@ -195,7 +194,7 @@ export class Basics extends Component {
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
         axios.post('/api/updateSopFile', data)
         .then( res=> {
-            console.log('res', res)
+            console.log('res.data', res.data)
             if(res.data.success){
                 this.setState({ data: this.state.data.map(x => x.id === res.data.data.id ? x= res.data.data : x ) })
                 this.resetData()
@@ -278,10 +277,10 @@ export class Basics extends Component {
                                                                                                                         <h2 className="mb-0"><button className="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target={"#step4"+m.id} aria-expanded="true" aria-controls={"step4"+m.id}>{m.name}</button></h2>
                                                                                                                     </div>
                                                                                                                     <div id={"step4"+m.id} className="collapse" aria-labelledby={"heading4-"+m.id} data-parent="#accordionExample5">
-                                                                                                                        <div className="card-body">
+                                                                                                                        <div className="card-body finalCardBody flex-h">
                                                                                                                             { m.sop != null ? 
                                                                                                                                 <>
-                                                                                                                                    <a target="_blank" href={"/psp/storage/app/public/sop/"+m.sop}><button className="amitBtn" style={{marginRight: '1em'}}>Download SOP</button></a>
+                                                                                                                                    <a target="_blank" href={func.imgPath+'sop/'+m.sop} className="amitBtn" style={{marginRight: '1em'}}>Download SOP</a>
                                                                                                                                     <button onClick={()=>this.updateFile(m)} className="amitBtn">Update SOP</button>
                                                                                                                                 </>
                                                                                                                                 : 

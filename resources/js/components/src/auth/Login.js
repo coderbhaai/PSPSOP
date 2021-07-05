@@ -6,10 +6,10 @@ class Login extends Component {
     constructor(props){
         super(props)        
         this.state = {
-            email:              '',
-            password:           '',
-            // email:              'amit.khare588@gmail.com',
-            // password:           '123456789',
+            // email:              '',
+            // password:           '',
+            email:              'amit.khare588@gmail.com',
+            password:           '123456789',
         }
     }
 
@@ -26,9 +26,11 @@ class Login extends Component {
         }               
         axios.post('/api/login', data)
             .then(res=> {
+                console.log(`res.data`, res.data)
                 if(res.data.success){
                     localStorage.setItem('user', JSON.stringify(res.data.data))
                     localStorage.setItem('access_token', JSON.stringify(res.data.access_token))
+                    localStorage.setItem('logo', JSON.stringify(res.data.logo))
                     localStorage.setItem('message', res.data.message)
                     window.location.href = '/'
                 }else{ this.callSwal(res.data.message) }

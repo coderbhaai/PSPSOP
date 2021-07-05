@@ -1063,7 +1063,12 @@ button.swiper-pagination-bullet {
   width: 100%;
   text-align: center;
   border: none;
-  max-width: 400px;
+}
+
+.accordion button:focus {
+  outline: none;
+  -webkit-box-shadow: none;
+          box-shadow: none;
 }
 
 .accordion button:hover {
@@ -1715,5 +1720,61 @@ img.plusBtn:hover {
 
 .subscribe form > div:not(.my-div) {
   min-width: 350px;
+}
+
+.orgLogo img {
+  max-width: 200px;
+  display: block;
+}
+
+.swal-overlay {
+  background: transparent;
+}
+
+.swal-modal {
+  position: absolute;
+  bottom: 10%;
+  right: 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  margin: 0;
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+  background: #ea700c;
+}
+
+.swal-modal .swal-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 400;
+  text-align: left;
+  padding: 0 2em 0 1em;
+  color: #fff;
+}
+
+.swal-modal .swal-footer {
+  margin: 0;
+  padding: 0;
+}
+
+.swal-modal .swal-footer .swal-button-container .swal-button {
+  background: #004260;
+  color: #fff;
+  border: 1px solid #fff;
+}
+
+.finalCardBody .amitBtn {
+  max-width: 200px;
+  padding: 1em;
+  min-width: 200px;
+  height: 60px;
 }
 /*# sourceMappingURL=style.css.map */

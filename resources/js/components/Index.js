@@ -18,6 +18,9 @@ import AdminOrg from './src/admin/Org'
 import Basics from './src/admin/Basics'
 
 import OrgUser from './src/org/User'
+import About from './src/org/About'
+import Logo from './src/org/Logo'
+import Subscription from './src/org/Subscription'
 
 import CreateSop from './src/admin/CreateSop'
 import UpdateSop from './src/admin/UpdateSop'
@@ -44,6 +47,9 @@ function Index() {
                 <Route exact path="/admin-users" component={RequireAdmin( AdminUser ) }/>
 
                 <Route exact path="/org-users" component={RequireOrg( OrgUser ) }/>
+                <Route exact path="/about" component={RequireOrg( About ) }/>
+                <Route exact path="/logo" component={RequireOrg( Logo ) }/>
+                <Route exact path="/subscription" component={RequireOrg( Subscription ) }/>
 
                 <Route exact path="/basics" component={RequireAdminOrOrg( Basics ) }/>
                 <Route exact path="/sopList" component={RequireAdminOrOrg( SopList ) }/>

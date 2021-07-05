@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use DB;
 use Auth;
 use Hash;
 use Mail;
+use App\Models\Org;
 use App\Models\User;
 use App\Mail\ForgotPassword;
 use App\Mail\ChangedPassword;
@@ -106,6 +108,26 @@ class AuthController extends Controller
                     $i->status          =   (int)$i->status;
                     return $i;
                 });
+                $logo = Org::where('id', $user[0]->org)->select('logo')->first();
+                // $user =         DB::table('users')
+                //                 ->leftJoin('orgs', 'orgs.id', '=', 'users.org')
+                //                 ->where( 'users.email', $request->email )
+                //                 ->select([ 'users.id', 'users.name', 'users.password', 'users.email', 'users.role', 'users.access_token', 'users.status', 'users.org', 'orgs.logo' ])
+                //                 ->get()->map(function($i) {
+                //                     $i->org             =   (int)$i->org;
+                //                     $i->status          =   (int)$i->status;
+                //                     return $i;
+                //                 });
+
+                // $user =         DB::table('orgs')
+                //                 ->leftJoin('users', 'users.org', '=', 'orgs.id')
+                //                 ->where( 'users.email', $request->email )
+                //                 ->select([ 'users.id', 'users.name', 'users.password', 'users.email', 'users.role', 'users.access_token', 'users.status', 'users.org', 'orgs.logo' ])
+                //                 ->get()->map(function($i) {
+                //                     $i->org             =   (int)$i->org;
+                //                     $i->status          =   (int)$i->status;
+                //                     return $i;
+                //                 });
                 if ( ! Hash::check($request->password, $user[0]->password, [])) {
                     throw new \Exception('Error in Login');
                 }
@@ -129,7 +151,8 @@ class AuthController extends Controller
                     'access_token'      => $tokenResult,
                     'token_type'        => 'Bearer',
                     'message'           => 'Welcome Aboard',
-                    'data'              =>  $user[0]
+                    'data'              =>  $user[0],
+                    'logo'              =>  $logo->logo
                 ]);
             } 
         catch (Exception $error) {
@@ -221,8 +244,7 @@ class AuthController extends Controller
         return response()->json($response, 201);
     }
 
-    public function logout(Request $request)
-    {
+    public function logout(Request $request){
         $request->user()->tokens()->delete();
         $response = ['data' => 'Logout successful.'];
         return response()->json($response, 201);

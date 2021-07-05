@@ -27,7 +27,13 @@ Route::middleware('auth:sanctum')->group(function () {
         
     // Only for Org
         Route::get('/userUsers', [AdminController::class, 'userUsers']);
+        Route::post('/updateRole', [AdminController::class, 'updateRole']);
         Route::post('/changeUserStatus', [AdminController::class, 'changeUserStatus']);
+        Route::get('/orgAbout', [AdminController::class, 'orgAbout']);
+        Route::post('/createAbout', [AdminController::class, 'createAbout']);
+        Route::post('/updateAbout', [AdminController::class, 'updateAbout']);
+        Route::get('/orgLogo', [AdminController::class, 'orgLogo']);
+        Route::post('/updateLogo', [AdminController::class, 'updateLogo']);
         // Only for Org
         
         // Common for both
